@@ -1,4 +1,4 @@
-# cp_swap
+# RootHash Chain Bridge
 
 ## Project setup
 ```
