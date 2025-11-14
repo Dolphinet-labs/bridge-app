@@ -1,4 +1,4 @@
-# RootHash Chain Bridge
+# DolphinNet Chain Bridge
 
 ## Project setup
 ```
