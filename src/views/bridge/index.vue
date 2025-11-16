@@ -1240,27 +1240,28 @@ function select2(val) {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 4px;
       
       .title-part1 {
-        font-size: 32px;
+        font-size: 28px;
         font-weight: 500;
         background: linear-gradient(135deg, #0077BE 0%, #00B4D8 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         color: #1E293B;
+        letter-spacing: -0.5px;
       }
       
       .title-part2 {
         font-size: 56px;
         font-weight: 700;
-        font-family: 'Playfair Display', 'Cinzel', serif;
+        font-family: 'Cormorant Garamond', 'Playfair Display', 'Cinzel', serif;
         background: linear-gradient(135deg, #0077BE 0%, #00B4D8 50%, #4A9EFF 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
         font-style: italic;
         text-transform: capitalize;
       }
@@ -1339,16 +1340,15 @@ function select2(val) {
           height: 72px;
           border: 1px solid rgba(0, 119, 190, 0.15);
           box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
-          transition: all 0.3s ease;
-          
-          &:hover {
-            border-color: rgba(0, 119, 190, 0.3);
-            box-shadow: 0 4px 12px rgba(0, 119, 190, 0.12);
-            transform: translateY(-2px);
-          }
+          transition: all 0.4s ease;
           box-sizing: border-box;
           min-width: 0;
-          transition: box-shadow 0.2s;
+          
+          &:hover {
+            border-color: rgba(0, 119, 190, 0.22);
+            box-shadow: 0 3px 10px rgba(0, 119, 190, 0.08);
+            transform: translateY(-1px);
+          }
 
           img {
             width: 40px;
@@ -1659,13 +1659,18 @@ function select2(val) {
         color: #1A1E1D;
         cursor: pointer;
         // margin-top: 16px;
-        transition: background 0.18s, filter 0.18s;
+        transition: all 0.3s ease;
 
         &:hover,
         &:active {
-          background: linear-gradient(135deg, #005A8F 0%, #0096C7 100%);
-          box-shadow: 0 6px 20px rgba(0, 119, 190, 0.4);
-          transform: translateY(-1px);
+          background: linear-gradient(135deg, #006BA3 0%, #00A0C8 100%);
+          box-shadow: 0 5px 18px rgba(0, 119, 190, 0.25);
+          transform: translateY(-0.5px);
+        }
+        
+        // connect wallet 文字颜色
+        span:first-child {
+          color: #FFFFFF !important;
         }
       }
 
@@ -2319,26 +2324,27 @@ function select2(val) {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 6px;
+        gap: 3px;
         
           .title-part1 {
-          font-size: 20px;
+          font-size: 18px;
           font-weight: 500;
           background: linear-gradient(135deg, #0077BE 0%, #00B4D8 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+          letter-spacing: -0.3px;
         }
         
         .title-part2 {
           font-size: 36px;
           font-weight: 700;
-          font-family: 'Playfair Display', 'Cinzel', serif;
+          font-family: 'Cormorant Garamond', 'Playfair Display', 'Cinzel', serif;
           background: linear-gradient(135deg, #0077BE 0%, #00B4D8 50%, #4A9EFF 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          letter-spacing: 0.5px;
+          letter-spacing: 1px;
           font-style: italic;
           text-transform: capitalize;
         }
@@ -2417,16 +2423,15 @@ function select2(val) {
             height: 72px;
             border: 1px solid rgba(0, 119, 190, 0.15);
             box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
-            transition: all 0.3s ease;
-            
-            &:hover {
-              border-color: rgba(0, 119, 190, 0.3);
-              box-shadow: 0 4px 12px rgba(0, 119, 190, 0.12);
-              transform: translateY(-2px);
-            }
+            transition: all 0.4s ease;
             box-sizing: border-box;
             min-width: 0;
-            transition: box-shadow 0.2s;
+            
+            &:hover {
+              border-color: rgba(0, 119, 190, 0.22);
+              box-shadow: 0 3px 10px rgba(0, 119, 190, 0.08);
+              transform: translateY(-1px);
+            }
 
             img {
               width: 30px;
@@ -2736,13 +2741,18 @@ function select2(val) {
           color: #1A1E1D;
           cursor: pointer;
           // margin-top: 16px;
-          transition: background 0.18s, filter 0.18s;
+          transition: all 0.3s ease;
 
           &:hover,
           &:active {
-            background: linear-gradient(135deg, #005A8F 0%, #0096C7 100%);
-            box-shadow: 0 6px 20px rgba(0, 119, 190, 0.4);
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #006BA3 0%, #00A0C8 100%);
+            box-shadow: 0 5px 18px rgba(0, 119, 190, 0.25);
+            transform: translateY(-0.5px);
+          }
+          
+          // connect wallet 文字颜色
+          span:first-child {
+            color: #FFFFFF !important;
           }
         }
 

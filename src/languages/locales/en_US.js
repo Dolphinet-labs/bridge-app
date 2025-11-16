@@ -28,7 +28,7 @@ export default {
     userRejected:"User rejected the request!",
     bridgeFailed:"Bridge failed!",
     fundsArrive: "Funds arrive!",
-    connectWallet: "connect wallet",
+    connectWallet: "Connect Wallet",
     insufficientBalance: "Insufficient balance", 
     switchToCorrectNetwork: "Please switch to the correct network",
     minimumBridgeAmount: "Minimum bridge amount is",

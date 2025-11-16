@@ -505,8 +505,8 @@ const handleScroll = () => {
 
 // 监听滚动位置变化，修改 header 样式
 watchEffect(() => {
-  // 背景色透明度：超过 150px 时背景色变深至不透明
-  const opacity = scrollY.value > 70 ? 0.9 : scrollY.value / 70 * 0.9;
+  // 背景色始终保持透明
+  const opacity = 0;
   const newTop = 0; // top 最大值为 30px
   // console.log(opacity)
   headerStyle.value = {
@@ -594,6 +594,45 @@ const handleSelect = (index, indexPath) => {
   font-size: 16px;
 }
 
+:deep(.el-menu-item) {
+  color: #000000 !important;
+  
+  &:hover {
+    color: #0077BE !important;
+    background-color: rgba(0, 119, 190, 0.1) !important;
+  }
+  
+  &.is-active {
+    color: #0077BE !important;
+  }
+}
+
+// 针对下拉菜单（popup）中的菜单项
+:deep(.el-menu--popup) {
+  .el-menu-item {
+    color: #000000 !important;
+    
+    &:hover {
+      color: #0077BE !important;
+      background-color: rgba(0, 119, 190, 0.1) !important;
+    }
+  }
+}
+
+// 针对水平菜单中的下拉菜单项
+:deep(.el-menu--horizontal) {
+  .el-menu--popup {
+    .el-menu-item {
+      color: #000000 !important;
+      
+      &:hover {
+        color: #0077BE !important;
+        background-color: rgba(0, 119, 190, 0.1) !important;
+      }
+    }
+  }
+}
+
 :deep(.el-menu:not(.el-menu--collapse)) {
   .el-sub-menu__title {
     padding-right: 24px;
@@ -605,6 +644,26 @@ const handleSelect = (index, indexPath) => {
     font-size: 16px;
     right: 2px;
     margin-top: -7px;
+  }
+  
+  .el-menu {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .el-menu--popup {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    
+    .el-menu-item {
+      color: #000000 !important;
+      
+      &:hover {
+        color: #0077BE !important;
+        background-color: rgba(0, 119, 190, 0.1) !important;
+      }
+    }
   }
 }
 
@@ -1048,7 +1107,7 @@ a {
         gap: 10px;
         border-radius: 100px;
         border: 1px solid rgba(0, 119, 190, 0.3);
-        color: #1E293B;
+        color: #0077BE;
         width: 130px;
 
         font-size: 14px;
@@ -1063,13 +1122,19 @@ a {
       button:hover {
         cursor: pointer;
 
-        border: 1px solid #00A8FF;
+        border: 1px solid #0077BE;
 
-        color: #00A8FF;
+        color: #0077BE;
       }
 
       .menu {
         display: block;
+
+        :deep(.el-sub-menu__title) {
+          img {
+            filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2000%) hue-rotate(195deg) brightness(0.75) contrast(1);
+          }
+        }
       }
 
       .menu1 {
@@ -1079,6 +1144,7 @@ a {
 
         img {
           height: 20px;
+          filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2000%) hue-rotate(195deg) brightness(0.75) contrast(1);
         }
 
         display: none;
@@ -1186,6 +1252,7 @@ a {
           img {
             height: 20px;
             margin-right: 10px;
+            filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2000%) hue-rotate(195deg) brightness(0.75) contrast(1);
           }
 
           button {
@@ -1198,8 +1265,8 @@ a {
             width: 100px;
             padding: 0 5px;
             border-radius: 100px;
-            border: 1px solid rgba(0, 168, 255, 0.5);
-            color: #1E293B;
+            border: 1px solid rgba(0, 119, 190, 0.5);
+            color: #0077BE;
             font-family: "PingFang SC";
             font-size: 12px;
             font-weight: 500;
@@ -1215,7 +1282,7 @@ a {
           }
 
           :deep(.el-icon:hover) {
-            color: #00A8FF;
+            color: #0077BE;
           }
         }
       }
