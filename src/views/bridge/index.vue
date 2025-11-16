@@ -1141,11 +1141,14 @@ function select2(val) {
   width: 100vw;
   overflow-x: hidden;
   min-height: 100vh;
+  min-height: -webkit-fill-available; /* iOS Safari */
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   align-items: center;
   padding: 80px 0;
+  padding-top: max(80px, env(safe-area-inset-top));
+  padding-bottom: max(80px, env(safe-area-inset-bottom));
 
   button:disabled {
     cursor: not-allowed
@@ -1770,6 +1773,31 @@ function select2(val) {
     }
   }
 
+  /* iPhone specific optimizations */
+  @media (max-width: 430px) {
+    .bridge {
+      padding: 60px 0;
+      padding-top: max(60px, env(safe-area-inset-top));
+      padding-bottom: max(60px, env(safe-area-inset-bottom));
+    }
+  }
+
+  @media (max-width: 390px) {
+    .bridge {
+      padding: 50px 0;
+      padding-top: max(50px, env(safe-area-inset-top));
+      padding-bottom: max(50px, env(safe-area-inset-bottom));
+    }
+  }
+
+  @media (max-width: 375px) {
+    .bridge {
+      padding: 40px 0;
+      padding-top: max(40px, env(safe-area-inset-top));
+      padding-bottom: max(40px, env(safe-area-inset-bottom));
+    }
+  }
+
   @media (max-width: 768px) {
     .recordList {
       width: calc(100% - 30px);
@@ -2304,13 +2332,14 @@ function select2(val) {
     }
 
     .swap-container {
-
-
       max-width: 480px;
-      height: 550px;
+      height: auto;
+      min-height: 550px;
       margin: 0 auto;
       width: 100%;
       padding: 0 15px;
+      padding-left: max(15px, env(safe-area-inset-left));
+      padding-right: max(15px, env(safe-area-inset-right));
 
       h1 {
         color: #FFF;
@@ -2352,6 +2381,8 @@ function select2(val) {
 
       .content {
         padding: 16px;
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-right: max(16px, env(safe-area-inset-right));
         max-width: 480px;
         // height: 450px;
         border-radius: 24px;
@@ -2367,8 +2398,10 @@ function select2(val) {
 
           .arrow-wrap {
             cursor: pointer;
-            width: 32px;
-            height: 32px;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
             background: rgba(255, 255, 255, 0.9);
             border: 1.6px solid rgba(0, 119, 190, 0.2);
             box-shadow: 0 2px 8px rgba(0, 119, 190, 0.1);
@@ -2384,7 +2417,8 @@ function select2(val) {
             //    transform: translateY(-50%);
             z-index: 2;
             box-shadow: 0 1px 8px #0002 inset;
-
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
           }
 
           .arrow {
@@ -2420,17 +2454,24 @@ function select2(val) {
             display: flex;
             align-items: center;
             gap: 8px;
+            min-height: 72px;
             height: 72px;
             border: 1px solid rgba(0, 119, 190, 0.15);
             box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
             transition: all 0.4s ease;
             box-sizing: border-box;
             min-width: 0;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
             
             &:hover {
               border-color: rgba(0, 119, 190, 0.22);
               box-shadow: 0 3px 10px rgba(0, 119, 190, 0.08);
               transform: translateY(-1px);
+            }
+            
+            &:active {
+              transform: translateY(0);
             }
 
             img {
@@ -2729,6 +2770,7 @@ function select2(val) {
           width: 100%;
           // padding: 20px  0;
           display: block;
+          min-height: 48px;
           height: 48px;
           border: none;
           outline: none;
@@ -2742,12 +2784,20 @@ function select2(val) {
           cursor: pointer;
           // margin-top: 16px;
           transition: all 0.3s ease;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          -webkit-appearance: none;
+          user-select: none;
 
           &:hover,
           &:active {
             background: linear-gradient(135deg, #006BA3 0%, #00A0C8 100%);
             box-shadow: 0 5px 18px rgba(0, 119, 190, 0.25);
             transform: translateY(-0.5px);
+          }
+          
+          &:active {
+            transform: scale(0.98);
           }
           
           // connect wallet 文字颜色

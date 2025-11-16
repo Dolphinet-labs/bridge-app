@@ -1076,13 +1076,16 @@ a {
     backdrop-filter: blur(10px);
     box-sizing: content-box;
     /* 固定在页面顶部 */
-    top: 0px;
+    top: env(safe-area-inset-top, 0px);
     // left: 0;
     // right: 0;
     // border-radius: 100px;
     backdrop-filter: blur(14px);
     padding: 0 24px;
+    padding-left: max(24px, env(safe-area-inset-left));
+    padding-right: max(24px, env(safe-area-inset-right));
     width: calc(100% - 48px);
+    width: calc(100% - max(48px, env(safe-area-inset-left) + env(safe-area-inset-right) + 24px * 2));
     // border-radius: 100px;
 
     .gridContent {
@@ -1207,6 +1210,9 @@ a {
     .content {
       height: 58px;
       width: calc(100% - 30px);
+      width: calc(100% - max(30px, env(safe-area-inset-left) + env(safe-area-inset-right)));
+      padding-left: max(15px, env(safe-area-inset-left));
+      padding-right: max(15px, env(safe-area-inset-right));
 
       backdrop-filter: blur(14px);
       // border-radius: 100px;
@@ -1238,6 +1244,7 @@ a {
           margin-top: 8px;
           cursor: pointer;
           display: flex;
+          min-height: 44px;
           height: 44px;
           padding: 0px 16px;
           justify-content: center;
@@ -1246,10 +1253,13 @@ a {
           border-radius: 100px;
           border: 1px solid rgba(0, 168, 255, 0.5);
           color: #1E293B;
-
           font-size: 16px;
           font-weight: 500;
           background: transparent;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          -webkit-appearance: none;
+          user-select: none;
         }
 
         .menu {
@@ -1271,11 +1281,13 @@ a {
             margin-top: 0px !important;
             cursor: pointer;
             display: flex;
-            height: 25px;
+            min-height: 44px;
+            height: 44px;
             justify-content: center;
             align-items: center;
+            min-width: 100px;
             width: 100px;
-            padding: 0 5px;
+            padding: 0 12px;
             border-radius: 100px;
             border: 1px solid rgba(0, 119, 190, 0.5);
             color: #0077BE;
@@ -1283,6 +1295,10 @@ a {
             font-size: 12px;
             font-weight: 500;
             background: transparent;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+            user-select: none;
           }
 
           button:hover {
