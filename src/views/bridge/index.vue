@@ -1700,45 +1700,77 @@ function select2(val) {
   .recordList {
     width: 100%;
     padding: 0 120px;
+    margin-top: 40px;
 
     .records-title {
       color: #1a1a1a;
-
       font-size: 24px;
       font-style: normal;
       font-weight: 500;
       line-height: normal;
+      margin-bottom: 24px;
     }
 
     table {
       width: 100%;
-
+      border-collapse: separate;
+      border-spacing: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 119, 190, 0.08), 0 2px 8px rgba(0, 119, 190, 0.04);
+      border: 1px solid rgba(0, 119, 190, 0.1);
 
       thead {
+        background: rgba(0, 119, 190, 0.05);
+        
         th {
-          color: var(---, #8E8E92);
-
+          color: #64748B;
           font-size: 12px;
           font-style: normal;
-          font-weight: 400;
+          font-weight: 500;
           line-height: normal;
-          height: 40px;
+          height: 48px;
           text-align: left;
+          padding: 0 16px;
+          border-bottom: 1px solid rgba(0, 119, 190, 0.1);
+          
+          &:first-child {
+            padding-left: 24px;
+          }
+          
+          &:last-child {
+            padding-right: 24px;
+          }
         }
       }
 
       tbody {
         tr {
-
           height: 64px;
+          transition: background-color 0.2s ease;
+          
+          &:hover {
+            background-color: rgba(0, 119, 190, 0.03);
+          }
 
           td {
-
             color: #1E293B;
             font-size: 14px;
             font-style: normal;
             font-weight: 500;
             line-height: normal;
+            padding: 0 16px;
+            border-bottom: 1px solid rgba(0, 119, 190, 0.05);
+            
+            &:first-child {
+              padding-left: 24px;
+            }
+            
+            &:last-child {
+              padding-right: 24px;
+            }
 
             .status {
               font-weight: 500;
@@ -1751,20 +1783,27 @@ function select2(val) {
                 color: #f4575e;
               }
             }
-
+          }
+          
+          &:last-child td {
+            border-bottom: none;
           }
 
-          .goScan:hover {
+          .goScan {
+            color: #0077BE;
+            transition: color 0.2s ease;
             cursor: pointer;
-            color: #005A8F;
+            
+            &:hover {
+              color: #005A8F;
+              text-decoration: underline;
+            }
           }
         }
 
         .alt {
-          background: rgba(255, 255, 255, 0.5);
+          background: rgba(240, 248, 255, 0.3);
         }
-
-
       }
     }
 
@@ -1821,26 +1860,36 @@ function select2(val) {
       ul {
         display: block;
         list-style: none;
-        margin-top: 40px;
+        margin-top: 24px;
+        padding: 0;
 
         li {
           margin-bottom: 16px;
+          padding: 20px;
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(20px);
+          border-radius: 16px;
+          box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
+          border: 1px solid rgba(0, 119, 190, 0.1);
+          transition: all 0.3s ease;
 
-          border-bottom: 0.5px solid #2E2F32;
+          &:hover {
+            box-shadow: 0 4px 12px rgba(0, 119, 190, 0.1);
+            transform: translateY(-1px);
+          }
 
           .item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 17px;
-            margin-bottom: 8px;
+            min-height: 24px;
+            margin-bottom: 12px;
 
             .name {
-              color: #F3F5F6;
-
-              font-size: 15px;
+              color: #1E293B;
+              font-size: 16px;
               font-style: normal;
-              font-weight: 500;
+              font-weight: 600;
               line-height: normal;
             }
 
@@ -1904,8 +1953,14 @@ function select2(val) {
           }
 
           .item:first-child {
-            height: 21px;
-            margin-bottom: 12px;
+            min-height: 28px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 119, 190, 0.1);
+          }
+          
+          .item:last-child {
+            margin-bottom: 0;
           }
         }
       }

@@ -734,7 +734,7 @@ const handleSelect = (index, indexPath) => {
       flex-wrap: wrap;
 
       img {
-        max-width: 72px;
+        max-width: 128px;
         margin-bottom: 16px;
       }
 
@@ -1095,8 +1095,9 @@ a {
       width: 100%;
 
       img {
-        height: 60px;
+        height: 105px;
         object-fit: contain;
+        margin-top: 8px;
       }
     }
 
@@ -1180,7 +1181,8 @@ a {
         height: 73px;
         
         img {
-          height: 52px;
+          height: 90px;
+          margin-top: 6px;
         }
       }
       
@@ -1224,8 +1226,9 @@ a {
         width: 100%;
 
         img {
-          height: 44px;
+          height: 78px;
           object-fit: contain;
+          margin-top: 5px;
         }
       }
 
