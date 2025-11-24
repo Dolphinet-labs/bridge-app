@@ -935,17 +935,30 @@ const handleSelect = (index, indexPath) => {
   }
 
   @media (max-width: 768px) {
+    .popup {
+      align-items: center;
+      justify-content: center;
+    }
+
     .content1 {
-      width: 100%;
-      bottom: 0;
-      animation: slide-up 0.3s ease;
+      width: 90vw;
+      max-width: 360px;
+      bottom: auto;
+      position: relative;
+      border-radius: 16px;
+      padding: 24px;
+      margin: 0;
+      animation: fadeIn 0.4s ease forwards;
+      
+      ul {
+        max-height: 360px;
+      }
     }
 
     .content2 {
       display: flex;
       max-width: 360px;
       width: 90vw;
-      // height: 250px;
       padding: 24px;
       flex-direction: column;
       align-items: flex-start;
@@ -953,13 +966,13 @@ const handleSelect = (index, indexPath) => {
       position: relative;
       border-radius: 16px;
       background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 4px 24px rgba(0, 119, 190, 0.12), 0 2px 8px rgba(0, 119, 190, 0.06);
-    border-bottom: 1px solid rgba(0, 119, 190, 0.1);
-      cursor: pointer;
-      animation: slide-up 0.3s ease;
-      position: absolute;
-      bottom: 0;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 4px 24px rgba(0, 119, 190, 0.12), 0 2px 8px rgba(0, 119, 190, 0.06);
+      border-bottom: 1px solid rgba(0, 119, 190, 0.1);
+      cursor: default;
+      animation: fadeIn 0.4s ease forwards;
+      bottom: auto;
+      margin: 0;
 
       :deep(.el-icon) {
         position: absolute;
