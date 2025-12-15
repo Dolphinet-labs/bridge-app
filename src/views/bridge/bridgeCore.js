@@ -3,8 +3,10 @@ import { ElMessage } from 'element-plus'
 import { readContract, estimateFeesPerGas, estimateGas, writeContract, waitForTransactionReceipt } from '@wagmi/core'
 import { config } from '../../wagmi.ts'
 import erc20ABI from "@/assets/abi/erc20ABI"
+import erc721 from "@/assets/abi/erc721ABI.json"
 import bridge from "@/assets/abi/bridgeABI"
 const bridgeABI = bridge.abi
+const erc721ABI = erc721.abi
 
 // 手动定义 maxUint256
 const maxUint256 = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
@@ -153,6 +155,191 @@ export async function approveToken({
       throw new Error(BRIDGE_MESSAGES.userCancelledAuth) // 使用国际化消息
     }
     throw new Error(BRIDGE_MESSAGES.approveTokenFailed + (error.message || error)) // 使用国际化消息
+  }
+}
+
+/**
+ * 检查 ERC721 是否已授权给桥合约
+ */
+export async function checkErc721Approved({
+  nftAddress,
+  tokenId,
+  ownerAddress,
+  operatorAddress
+}) {
+  const tokenIdBigInt = safeBigInt(tokenId)
+  try {
+    const approvedForAll = await readContract(config, {
+      address: nftAddress,
+      abi: erc721ABI,
+      functionName: 'isApprovedForAll',
+      args: [ownerAddress, operatorAddress]
+    })
+    if (approvedForAll) return true
+
+    const approvedAddress = await readContract(config, {
+      address: nftAddress,
+      abi: erc721ABI,
+      functionName: 'getApproved',
+      args: [tokenIdBigInt]
+    })
+
+    return (approvedAddress || '').toLowerCase() === operatorAddress.toLowerCase()
+  } catch (error) {
+    console.error('Failed to check ERC721 approval:', error)
+    return false
+  }
+}
+
+/**
+ * 授权单个 ERC721 tokenId 给桥合约
+ */
+export async function approveErc721({
+  nftAddress,
+  tokenId,
+  operatorAddress,
+  BRIDGE_MESSAGES
+}) {
+  try {
+    const tokenIdBigInt = safeBigInt(tokenId)
+    const hash = await writeContract(config, {
+      abi: erc721ABI,
+      address: nftAddress,
+      functionName: 'approve',
+      args: [operatorAddress, tokenIdBigInt]
+    })
+
+    await waitForTransactionReceipt(config, { hash })
+
+    ElMessage({
+      message: BRIDGE_MESSAGES.approvalSuccess || 'Approval success',
+      type: 'success',
+      duration: 3000,
+      showClose: true
+    })
+
+    return hash
+  } catch (error) {
+    console.error('❌ ERC721 approve error:', error)
+    if (isUserRejectedError(error)) {
+      throw new Error(BRIDGE_MESSAGES.userCancelledAuth || 'User cancelled')
+    }
+    throw error
+  }
+}
+
+/**
+ * NFT 跨链（本地 NFT -> 远端 Wrapped/Collection）
+ */
+export async function bridgeNftOptimized({
+  localCollection,
+  remoteCollection,
+  tokenId,
+  userAddress,
+  bridgeContractAddress,
+  fromChainId,
+  targetChainId,
+  toAddress,
+  setTxHash,
+  setApprovalHash,
+  BRIDGE_MESSAGES
+}) {
+  try {
+    // 1) 校验/授权 ERC721
+    const approved = await checkErc721Approved({
+      nftAddress: localCollection,
+      tokenId,
+      ownerAddress: userAddress,
+      operatorAddress: bridgeContractAddress
+    })
+
+    if (!approved) {
+      const approvalHash = await approveErc721({
+        nftAddress: localCollection,
+        tokenId,
+        operatorAddress: bridgeContractAddress,
+        BRIDGE_MESSAGES
+      })
+      setApprovalHash && setApprovalHash(approvalHash)
+    }
+
+    // 2) 计算 DOL->其他链手续费（msg.value）
+    const dolChainId = await readContract(config, {
+      address: bridgeContractAddress,
+      abi: bridgeABI,
+      functionName: 'dolChainId'
+    })
+
+    const needsNativeFee = BigInt(fromChainId) === BigInt(dolChainId) && BigInt(targetChainId) !== BigInt(dolChainId)
+    const nativeFee = needsNativeFee
+      ? await readContract(config, {
+          address: bridgeContractAddress,
+          abi: bridgeABI,
+          functionName: 'nftBridgeBaseFeePerChain',
+          args: [BigInt(targetChainId)]
+        })
+      : 0n
+
+    const args = [
+      fromChainId,
+      targetChainId,
+      localCollection,
+      remoteCollection,
+      safeBigInt(tokenId),
+      toAddress
+    ]
+
+    const gasEstimate = await computedGas(
+      bridgeABI,
+      'BridgeInitiateLocalNFT',
+      args,
+      bridgeContractAddress,
+      userAddress,
+      (nativeFee && BigInt(nativeFee) > 0n) ? BigInt(nativeFee) : undefined
+    )
+
+    const hash = await writeContract(config, {
+      abi: bridgeABI,
+      address: bridgeContractAddress,
+      functionName: 'BridgeInitiateLocalNFT',
+      args,
+      ...(nativeFee && BigInt(nativeFee) > 0n ? { value: BigInt(nativeFee) } : {}),
+      gas: gasEstimate.gas,
+      maxFeePerGas: gasEstimate.maxFeePerGas,
+      maxPriorityFeePerGas: gasEstimate.maxPriorityFeePerGas
+    })
+
+    setTxHash && setTxHash(hash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash })
+    if (receipt.status !== 'success') throw new Error(BRIDGE_MESSAGES.bridgeFailed || 'Bridge failed')
+
+    ElMessage({
+      message: BRIDGE_MESSAGES.bridgeSuccess || 'Bridge success',
+      type: 'success',
+      duration: 3000,
+      showClose: true
+    })
+
+    return { success: true, txHash: hash, receipt }
+  } catch (error) {
+    console.error('❌ NFT bridge error:', error)
+    if (isUserRejectedError(error)) {
+      ElMessage({
+        message: BRIDGE_MESSAGES.userRejected || 'User rejected',
+        type: 'warning',
+        duration: 2000,
+        showClose: true
+      })
+    } else {
+      ElMessage({
+        message: BRIDGE_MESSAGES.bridgeFailed || 'Bridge failed',
+        type: 'error',
+        duration: 2000,
+        showClose: true
+      })
+    }
+    throw error
   }
 }
 

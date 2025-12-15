@@ -70,6 +70,21 @@ export default {
     time: "转账时间",
     fee: "费用",
     continues: "继续"
+    ,
+    mode: {
+      token: "代币跨链",
+      nft: "NFT跨链"
+    },
+    nft: {
+      crosschain: "NFT跨链",
+      localCollection: "源NFT合约地址",
+      remoteCollection: "目标NFT合约地址",
+      tokenId: "Token ID",
+      to: "接收地址",
+      toPlaceholder: "默认当前钱包地址",
+      inputAddress: "请输入合约地址(0x...)",
+      fee: "NFT手续费"
+    }
   },
   notice: {
     title: "功能开发中",

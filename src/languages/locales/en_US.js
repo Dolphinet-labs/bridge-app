@@ -68,6 +68,21 @@ export default {
     time: "Transfer time",
     fee: "Fee",
     continues: "Continue"
+    ,
+    mode: {
+      token: "Token Bridge",
+      nft: "NFT Bridge"
+    },
+    nft: {
+      crosschain: "Bridge NFT",
+      localCollection: "Local NFT contract",
+      remoteCollection: "Remote NFT contract",
+      tokenId: "Token ID",
+      to: "Recipient",
+      toPlaceholder: "Default to current wallet",
+      inputAddress: "Enter contract address (0x...)",
+      fee: "NFT fee"
+    }
   },
   notice:{
     title: 'Feature Under Development',

@@ -2,6 +2,23 @@
   <div class="bridge">
 
     <div class="swap-container" v-if="bridgeStep === 1">
+      <div class="bridge-mode-tabs">
+        <button
+          class="mode-btn"
+          :class="{ active: bridgeMode === 'token' }"
+          @click="bridgeMode = 'token'"
+        >
+          {{ $t('bridge.mode.token') }}
+        </button>
+        <button
+          class="mode-btn"
+          :class="{ active: bridgeMode === 'nft' }"
+          @click="bridgeMode = 'nft'"
+        >
+          {{ $t('bridge.mode.nft') }}
+        </button>
+      </div>
+
       <h1>
         <span class="title-part1">The Ocean of</span>
         <span class="title-part2">Interoperability</span>
@@ -32,7 +49,7 @@
           </div>
         </div>
 
-        <div class="amount-card">
+        <div class="amount-card" v-if="bridgeMode === 'token'">
           <!-- 左侧 -->
           <div class="amount-main">
             <div class="amount-value">
@@ -63,7 +80,32 @@
           </div>
         </div>
 
-        <div class="summary-card">
+        <!-- NFT 模式表单 -->
+        <div class="nft-card" v-if="bridgeMode === 'nft'">
+          <div class="nft-row">
+            <div class="nft-label">{{ $t('bridge.nft.localCollection') }}</div>
+            <input class="nft-input" v-model.trim="nftLocalCollection" :placeholder="$t('bridge.nft.inputAddress')" />
+          </div>
+          <div class="nft-row">
+            <div class="nft-label">{{ $t('bridge.nft.remoteCollection') }}</div>
+            <input class="nft-input" v-model.trim="nftRemoteCollection" :placeholder="$t('bridge.nft.inputAddress')" />
+          </div>
+          <div class="nft-row">
+            <div class="nft-label">{{ $t('bridge.nft.tokenId') }}</div>
+            <input class="nft-input" type="number" v-model.trim="nftTokenId" placeholder="0" />
+          </div>
+          <div class="nft-row">
+            <div class="nft-label">{{ $t('bridge.nft.to') }}</div>
+            <input class="nft-input" v-model.trim="nftToAddress" :placeholder="$t('bridge.nft.toPlaceholder')" />
+          </div>
+          <div class="nft-fee">
+            {{ $t('bridge.nft.fee') }}：
+            <img v-if="isLoadingNftFee" src="@/assets/images/bridge/loading-gray.svg" alt="" />
+            <span v-else>{{ nftFeeDisplay }}</span>
+          </div>
+        </div>
+
+        <div class="summary-card" v-if="bridgeMode === 'token'">
           <div class="summary-main">
             <img class="summary-icon" :src="getImageUrl_1(coinChoose.img)" alt="ETH" />
             <div class="summary-info">
@@ -95,11 +137,26 @@
           <span v-if="!isInsufficient"> {{ $t('bridge.Insufficient') }} </span>
           <span v-else>{{ $t('bridge.Crosschain') }}</span>
         </button> -->
-        <button class="submit-btn" :disabled="address && (!amount || !isInsufficient)" @click="handleSubmitClick">
+        <button
+          class="submit-btn"
+          v-if="bridgeMode === 'token'"
+          :disabled="address && (!amount || !isInsufficient)"
+          @click="handleSubmitClick"
+        >
           <span v-if="!address">{{ $t('bridge.connectWallet') }}</span>
           <span v-else-if="!amount">{{ $t('bridge.enterValidAmount') }}</span>
           <span v-else-if="!isInsufficient">{{ $t('bridge.Insufficient') }}</span>
           <span v-else>{{ $t('bridge.Crosschain') }}</span>
+        </button>
+
+        <button
+          class="submit-btn"
+          v-else
+          :disabled="!canSubmitNft"
+          @click="handleSubmitNft"
+        >
+          <span v-if="!address">{{ $t('bridge.connectWallet') }}</span>
+          <span v-else>{{ $t('bridge.nft.crosschain') }}</span>
         </button>
       </div>
     </div>
@@ -403,6 +460,7 @@ const TOKEN_DECIMALS = {
 };
 
 import { switchChain } from '@wagmi/core'
+import { readContract } from '@wagmi/core'
 import {
   useChainId, useConnect, useDisconnect, useAccount, useAccountEffect, useWriteContract,
   useReadContract,
@@ -415,6 +473,7 @@ import { config } from '../../wagmi.ts' // 确保路径正确
 
 // 在 script setup 的导入部分添加
 import { bridgeMethodOptimized } from './bridgeCore.js'
+import { bridgeNftOptimized } from './bridgeCore.js'
 const pageNumber = ref(1)
 
 const pageSize = ref(5)
@@ -449,6 +508,32 @@ const Visible = ref(true)
 const isLoadingBalance = ref(false)
 const position = ref('')
 const bridgeStep = ref(1)
+const bridgeMode = ref('token') // token | nft
+
+// NFT form state
+import nftCollections from "../../assets/json/nftCollections.json"
+const nftLocalCollection = ref('')
+const nftRemoteCollection = ref('')
+const nftTokenId = ref('')
+const nftToAddress = ref('')
+const isLoadingNftFee = ref(false)
+const nftFeeWei = ref(0n)
+const nftFeeDisplay = computed(() => {
+  try {
+    if (!nftFeeWei.value) return '0'
+    return `${formatUnits(nftFeeWei.value, 18)} ETH`
+  } catch {
+    return '0'
+  }
+})
+
+const canSubmitNft = computed(() => {
+  return !!address.value &&
+    !!nftLocalCollection.value &&
+    !!nftRemoteCollection.value &&
+    nftTokenId.value !== '' &&
+    !!nftToAddress.value
+})
 const pageIndex = ref(1)
 
 const isProcessing = ref(false)
@@ -515,6 +600,53 @@ watch(
   },
   { deep: true }
 )
+
+watch([bridgeMode, fromChain, toChain], async () => {
+  if (bridgeMode.value !== 'nft') return
+
+  // 自动填充接收地址
+  if (address.value && !nftToAddress.value) nftToAddress.value = address.value
+
+  // 尝试根据配置自动匹配 collection
+  const match = (nftCollections || [])
+    .flatMap(g => g.pairs || [])
+    .find(p => Number(p.fromChainId) === Number(fromChain.value.chainId) && Number(p.toChainId) === Number(toChain.value.chainId))
+  if (match) {
+    if (!nftLocalCollection.value || nftLocalCollection.value === '0x0000000000000000000000000000000000000000') nftLocalCollection.value = match.localCollection
+    if (!nftRemoteCollection.value || nftRemoteCollection.value === '0x0000000000000000000000000000000000000000') nftRemoteCollection.value = match.remoteCollection
+  }
+
+  // 读取 NFT 手续费（只有 DOL->其他链需要）
+  try {
+    isLoadingNftFee.value = true
+    const bridgeContractAddress = fromChain.value.bridgeContract
+    if (!bridgeContractAddress) {
+      nftFeeWei.value = 0n
+      return
+    }
+    const dolId = await readContract(config, {
+      address: bridgeContractAddress,
+      abi: bridgeABI,
+      functionName: 'dolChainId'
+    })
+    const needsFee = BigInt(fromChain.value.chainId) === BigInt(dolId) && BigInt(toChain.value.chainId) !== BigInt(dolId)
+    if (!needsFee) {
+      nftFeeWei.value = 0n
+      return
+    }
+    const fee = await readContract(config, {
+      address: bridgeContractAddress,
+      abi: bridgeABI,
+      functionName: 'nftBridgeBaseFeePerChain',
+      args: [BigInt(toChain.value.chainId)]
+    })
+    nftFeeWei.value = BigInt(fee || 0)
+  } catch (e) {
+    nftFeeWei.value = 0n
+  } finally {
+    isLoadingNftFee.value = false
+  }
+}, { immediate: true })
 // 在 shortAddress 函数后添加
 // 在 shortAddress 函数后添加
 function validateAndCorrectAmount() {
@@ -1106,11 +1238,123 @@ function select2(val) {
   showModal2.value = false
   initBridgeBalance()
 }
+
+async function handleSubmitNft() {
+  if (!address.value) {
+    isLogin.value = true
+    return
+  }
+  try {
+    const bridgeContractAddress = fromChain.value.bridgeContract
+    if (!bridgeContractAddress) throw new Error('bridgeContract not configured')
+
+    // 切换网络到 fromChain
+    if (chain.value?.id !== fromChain.value.chainId) {
+      await switchToNetwork(fromChain.value.chainId)
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
+
+    await bridgeNftOptimized({
+      localCollection: nftLocalCollection.value,
+      remoteCollection: nftRemoteCollection.value,
+      tokenId: nftTokenId.value,
+      userAddress: address.value,
+      bridgeContractAddress,
+      fromChainId: fromChain.value.chainId,
+      targetChainId: toChain.value.chainId,
+      toAddress: nftToAddress.value,
+      BRIDGE_MESSAGES: BRIDGE_MESSAGES.value
+    })
+  } catch (e) {
+    console.error(e)
+  }
+}
 </script>
 
 
 <style lang="scss" scoped>
 .bridge {
+  .bridge-mode-tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 12px;
+
+    .mode-btn {
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 119, 190, 0.18);
+      background: rgba(255, 255, 255, 0.9);
+      color: #1E293B;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+
+      &.active {
+        border-color: rgba(0, 119, 190, 0.35);
+        background: linear-gradient(135deg, rgba(0, 119, 190, 0.12) 0%, rgba(0, 180, 216, 0.10) 100%);
+        color: #0077BE;
+      }
+    }
+  }
+
+  .nft-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 119, 190, 0.15);
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
+    padding: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 16px;
+
+    .nft-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+
+      .nft-label {
+        color: #64748B;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .nft-input {
+        height: 40px;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 119, 190, 0.15);
+        padding: 0 12px;
+        outline: none;
+        background: rgba(255, 255, 255, 0.9);
+        color: #1E293B;
+        font-size: 14px;
+
+        &::placeholder {
+          color: #94A3B8;
+        }
+      }
+    }
+
+    .nft-fee {
+      color: #64748B;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      img {
+        width: 18px;
+        animation: rotate 5s linear infinite;
+      }
+
+      span {
+        color: #1E293B;
+        font-weight: 500;
+      }
+    }
+  }
   .error-message {
     color: #ff4757;
     font-size: 12px;
@@ -1444,7 +1688,7 @@ function select2(val) {
             input[type="number"] {
               -moz-appearance: textfield;
               /* 可选：再加上自己需要的样式 */
-              /* appearance: textfield; */
+              appearance: textfield;
               /* 新标准也支持，但兼容性有限 */
             }
 
@@ -2350,7 +2594,7 @@ function select2(val) {
 
         &:hover,
         &.active {
-          // background: #23242b;
+          background: rgba(0, 119, 190, 0.04);
         }
       }
     }
@@ -2630,6 +2874,7 @@ function select2(val) {
           -webkit-tap-highlight-color: transparent;
           touch-action: manipulation;
           -webkit-appearance: none;
+          appearance: none;
           user-select: none;
 
           &:hover,
