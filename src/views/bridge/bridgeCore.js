@@ -180,21 +180,40 @@ export async function bridgeEthOptimized({
       userAddress
     })
     
+    // 合约已改为 BridgeInitiateNativeToken（原生币桥接），并且在 DOL->其他链方向需要额外支付 nativeBridgeFee
+    const dolChainId = await readContract(config, {
+      address: bridgeContractAddress,
+      abi: bridgeABI,
+      functionName: 'dolChainId'
+    })
+
+    const needsNativeFee = BigInt(fromChainId) === BigInt(dolChainId) && BigInt(targetChainId) !== BigInt(dolChainId)
+    const nativeFee = needsNativeFee
+      ? await readContract(config, {
+          address: bridgeContractAddress,
+          abi: bridgeABI,
+          functionName: 'nativeBridgeFee',
+          args: [BigInt(targetChainId)]
+        })
+      : 0n
+
+    const txValue = amountBigInt + BigInt(nativeFee || 0)
+
     const gasEstimate = await computedGas(
       bridgeABI,
-      'BridgeInitiateETH',
+      'BridgeInitiateNativeToken',
       [fromChainId, targetChainId, destTokenAddress, userAddress],
       bridgeContractAddress,
       userAddress,
-      amountBigInt
+      txValue
     )
     
     const hash = await writeContract(config, {
       abi: bridgeABI,
       address: bridgeContractAddress,
-      functionName: 'BridgeInitiateETH',
+      functionName: 'BridgeInitiateNativeToken',
       args: [fromChainId, targetChainId, destTokenAddress, userAddress],
-      value: amountBigInt,
+      value: txValue,
       gas: gasEstimate.gas,
       maxFeePerGas: gasEstimate.maxFeePerGas,
       maxPriorityFeePerGas: gasEstimate.maxPriorityFeePerGas
@@ -315,12 +334,30 @@ export async function bridgeErc20Optimized({
     ]
     
     console.log(args)
+    // 合约已改为 payable，并在 DOL->其他链方向收取 erc20BridgeFee（以 NativeTokenAddress 计价，使用 msg.value 支付）
+    const dolChainId = await readContract(config, {
+      address: bridgeContractAddress,
+      abi: bridgeABI,
+      functionName: 'dolChainId'
+    })
+
+    const needsNativeFee = BigInt(fromChainId) === BigInt(dolChainId) && BigInt(targetChainId) !== BigInt(dolChainId)
+    const nativeFee = needsNativeFee
+      ? await readContract(config, {
+          address: bridgeContractAddress,
+          abi: bridgeABI,
+          functionName: 'erc20BridgeFee',
+          args: [BigInt(targetChainId)]
+        })
+      : 0n
+
     const gasEstimate = await computedGas(
       bridgeABI,
       'BridgeInitiateERC20',
       args,
       bridgeContractAddress,
-      userAddress
+      userAddress,
+      (nativeFee && BigInt(nativeFee) > 0n) ? BigInt(nativeFee) : undefined
     )
     
     const hash = await writeContract(config, {
@@ -328,6 +365,7 @@ export async function bridgeErc20Optimized({
       address: bridgeContractAddress,
       functionName: 'BridgeInitiateERC20',
       args: args,
+      ...(nativeFee && BigInt(nativeFee) > 0n ? { value: BigInt(nativeFee) } : {}),
       gas: gasEstimate.gas,
       maxFeePerGas: gasEstimate.maxFeePerGas,
       maxPriorityFeePerGas: gasEstimate.maxPriorityFeePerGas

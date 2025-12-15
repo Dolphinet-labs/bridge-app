@@ -973,9 +973,16 @@ const bridgeMethod = async () => {
     if (!bridgeContractAddress) {
       throw new Error('桥接合约地址未配置')
     }
-    const tokenSymbol = coinChoose.value.name.toLowerCase()
-    const tokenAddress = fromChain.value[tokenSymbol + 'Contract']
-    const destTokenAddress = toChain.value[tokenSymbol + 'Contract']
+    // 合约地址字段映射：AQUA 使用 cpContract（而不是 aquaContract）
+    const tokenNameUpper = coinChoose.value.name?.toUpperCase?.() || ''
+    const tokenKey =
+      tokenNameUpper === 'AQUA' ? 'cpContract' :
+      tokenNameUpper === 'ETH'  ? 'ethContract' :
+      tokenNameUpper === 'USDT' ? 'usdtContract' :
+      (coinChoose.value.name.toLowerCase() + 'Contract')
+
+    const tokenAddress = fromChain.value[tokenKey]
+    const destTokenAddress = toChain.value[tokenKey]
 
     // 8. 调用桥接核心函数（使用新的动态解析逻辑）
     const result = await bridgeMethodOptimized({
@@ -2455,7 +2462,7 @@ function select2(val) {
         margin-bottom: 20px;
         gap: 0;
         
-        .title-part1 {
+          .title-part1 {
           font-size: 16px;
           letter-spacing: -0.2px;
           margin-bottom: 2px;
@@ -2498,11 +2505,11 @@ function select2(val) {
               width: 32px;
               height: 32px;
             }
-            
+
             .label {
               font-size: 12px;
             }
-            
+
             .name {
               font-size: 13px;
             }
@@ -2519,7 +2526,7 @@ function select2(val) {
 
           .amount-main {
             width: 100%;
-            
+
             .amount-value {
               input {
                 font-size: 28px;
@@ -2561,11 +2568,11 @@ function select2(val) {
               width: 28px;
               height: 28px;
             }
-            
+
             .summary-info {
-               .summary-amt {
+              .summary-amt {
                  font-size: 18px;
-               }
+              }
             }
           }
 
