@@ -81,7 +81,16 @@ export default {
       to: "Recipient",
       toPlaceholder: "Default to current wallet",
       inputAddress: "Enter contract address (0x...)",
-      fee: "NFT fee"
+      fee: "NFT fee",
+      myNfts: "My NFTs",
+      refresh: "Refresh",
+      loading: "Loading",
+      chooseTokenId: "Select a TokenId",
+      manualInput: "Manual input",
+      useList: "Use list",
+      notEnumerable: "This NFT doesn't support ERC721Enumerable, please input TokenId manually",
+      noNft: "No NFTs found in current wallet",
+      readFailed: "Failed to load NFT list. Check network/contract address"
     }
   },
   notice:{

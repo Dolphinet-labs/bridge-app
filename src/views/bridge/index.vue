@@ -92,7 +92,38 @@
           </div>
           <div class="nft-row">
             <div class="nft-label">{{ $t('bridge.nft.tokenId') }}</div>
-            <input class="nft-input" type="number" v-model.trim="nftTokenId" placeholder="0" />
+            <div class="nft-tokenid-wrap">
+              <div class="nft-tokenid-actions">
+                <button class="nft-mini-btn" type="button" @click="refreshOwnedNfts" :disabled="isLoadingNftList">
+                  {{ isLoadingNftList ? $t('bridge.nft.loading') : $t('bridge.nft.refresh') }}
+                </button>
+                <button class="nft-mini-btn" type="button" @click="toggleTokenIdMode">
+                  {{ nftTokenIdMode === 'list' ? $t('bridge.nft.manualInput') : $t('bridge.nft.useList') }}
+                </button>
+              </div>
+
+              <div v-if="nftListError" class="nft-hint error">{{ nftListError }}</div>
+              <div v-else-if="nftTokenIdMode === 'list' && nftOwnedTokenIds.length" class="nft-hint">
+                {{ $t('bridge.nft.myNfts') }}：{{ nftOwnedTokenIds.length }}
+              </div>
+
+              <select
+                v-if="nftTokenIdMode === 'list' && nftOwnedTokenIds.length"
+                class="nft-select"
+                v-model="nftSelectedTokenId"
+              >
+                <option value="" disabled>{{ $t('bridge.nft.chooseTokenId') }}</option>
+                <option v-for="id in nftOwnedTokenIds" :key="id" :value="id">{{ id }}</option>
+              </select>
+
+              <input
+                v-else
+                class="nft-input"
+                type="number"
+                v-model.trim="nftTokenId"
+                placeholder="0"
+              />
+            </div>
           </div>
           <div class="nft-row">
             <div class="nft-label">{{ $t('bridge.nft.to') }}</div>
@@ -474,6 +505,8 @@ import { config } from '../../wagmi.ts' // 确保路径正确
 // 在 script setup 的导入部分添加
 import { bridgeMethodOptimized } from './bridgeCore.js'
 import { bridgeNftOptimized } from './bridgeCore.js'
+import erc721 from "@/assets/abi/erc721ABI.json"
+const erc721ABI = erc721.abi
 const pageNumber = ref(1)
 
 const pageSize = ref(5)
@@ -514,10 +547,15 @@ const bridgeMode = ref('token') // token | nft
 import nftCollections from "../../assets/json/nftCollections.json"
 const nftLocalCollection = ref('')
 const nftRemoteCollection = ref('')
-const nftTokenId = ref('')
+const nftTokenId = ref('') // 手动输入 tokenId
+const nftSelectedTokenId = ref('') // 列表选择 tokenId
+const nftTokenIdMode = ref('manual') // manual | list
 const nftToAddress = ref('')
 const isLoadingNftFee = ref(false)
 const nftFeeWei = ref(0n)
+const isLoadingNftList = ref(false)
+const nftOwnedTokenIds = ref([])
+const nftListError = ref('')
 const nftFeeDisplay = computed(() => {
   try {
     if (!nftFeeWei.value) return '0'
@@ -528,12 +566,103 @@ const nftFeeDisplay = computed(() => {
 })
 
 const canSubmitNft = computed(() => {
+  const effectiveTokenId = nftTokenIdMode.value === 'list' ? nftSelectedTokenId.value : nftTokenId.value
   return !!address.value &&
     !!nftLocalCollection.value &&
     !!nftRemoteCollection.value &&
-    nftTokenId.value !== '' &&
+    effectiveTokenId !== '' &&
     !!nftToAddress.value
 })
+
+const effectiveNftTokenId = computed(() => {
+  return nftTokenIdMode.value === 'list' ? nftSelectedTokenId.value : nftTokenId.value
+})
+
+function toggleTokenIdMode() {
+  if (nftTokenIdMode.value === 'list') {
+    nftTokenIdMode.value = 'manual'
+    return
+  }
+  nftTokenIdMode.value = 'list'
+  if (nftOwnedTokenIds.value.length && !nftSelectedTokenId.value) {
+    nftSelectedTokenId.value = nftOwnedTokenIds.value[0]
+  }
+}
+
+async function refreshOwnedNfts() {
+  // 只有 NFT 模式才加载
+  if (bridgeMode.value !== 'nft') return
+  nftListError.value = ''
+  nftOwnedTokenIds.value = []
+  nftSelectedTokenId.value = ''
+
+  if (!address.value) return
+  if (!nftLocalCollection.value || !ethers.isAddress(nftLocalCollection.value)) return
+
+  try {
+    isLoadingNftList.value = true
+
+    // 仅当 NFT 合约支持 ERC721Enumerable 才能链上枚举 tokenId
+    const ERC721_ENUMERABLE_ID = '0x780e9d63'
+    let enumerable = false
+    try {
+      enumerable = await readContract(config, {
+        chainId: fromChain.value.chainId,
+        address: nftLocalCollection.value,
+        abi: erc721ABI,
+        functionName: 'supportsInterface',
+        args: [ERC721_ENUMERABLE_ID]
+      })
+    } catch {
+      enumerable = false
+    }
+
+    const bal = await readContract(config, {
+      chainId: fromChain.value.chainId,
+      address: nftLocalCollection.value,
+      abi: erc721ABI,
+      functionName: 'balanceOf',
+      args: [address.value]
+    })
+
+    const balance = BigInt(bal || 0)
+    if (balance === 0n) {
+      nftOwnedTokenIds.value = []
+      nftListError.value = t('bridge.nft.noNft')
+      return
+    }
+
+    if (!enumerable) {
+      nftListError.value = t('bridge.nft.notEnumerable')
+      // 仍可手动输入 tokenId
+      return
+    }
+
+    const limit = 50n
+    const count = balance > limit ? limit : balance
+    const ids = []
+    for (let i = 0n; i < count; i++) {
+      const tokenId = await readContract(config, {
+        chainId: fromChain.value.chainId,
+        address: nftLocalCollection.value,
+        abi: erc721ABI,
+        functionName: 'tokenOfOwnerByIndex',
+        args: [address.value, i]
+      })
+      ids.push((BigInt(tokenId)).toString())
+    }
+
+    nftOwnedTokenIds.value = Array.from(new Set(ids))
+    if (nftOwnedTokenIds.value.length) {
+      nftTokenIdMode.value = 'list'
+      nftSelectedTokenId.value = nftOwnedTokenIds.value[0]
+    }
+  } catch (e) {
+    nftListError.value = t('bridge.nft.readFailed')
+  } finally {
+    isLoadingNftList.value = false
+  }
+}
 const pageIndex = ref(1)
 
 const isProcessing = ref(false)
@@ -601,7 +730,7 @@ watch(
   { deep: true }
 )
 
-watch([bridgeMode, fromChain, toChain], async () => {
+watch([bridgeMode, fromChain, toChain, address], async () => {
   if (bridgeMode.value !== 'nft') return
 
   // 自动填充接收地址
@@ -646,6 +775,12 @@ watch([bridgeMode, fromChain, toChain], async () => {
   } finally {
     isLoadingNftFee.value = false
   }
+}, { immediate: true })
+
+watch([bridgeMode, nftLocalCollection, address, fromChain], async () => {
+  if (bridgeMode.value !== 'nft') return
+  // 自动刷新持仓列表（地址/链/collection 变化时）
+  await refreshOwnedNfts()
 }, { immediate: true })
 // 在 shortAddress 函数后添加
 // 在 shortAddress 函数后添加
@@ -1257,7 +1392,7 @@ async function handleSubmitNft() {
     await bridgeNftOptimized({
       localCollection: nftLocalCollection.value,
       remoteCollection: nftRemoteCollection.value,
-      tokenId: nftTokenId.value,
+      tokenId: effectiveNftTokenId.value,
       userAddress: address.value,
       bridgeContractAddress,
       fromChainId: fromChain.value.chainId,
@@ -1334,6 +1469,61 @@ async function handleSubmitNft() {
         &::placeholder {
           color: #94A3B8;
         }
+      }
+    }
+
+    .nft-tokenid-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nft-tokenid-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .nft-mini-btn {
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 119, 190, 0.18);
+      background: rgba(255, 255, 255, 0.9);
+      color: #0077BE;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .nft-mini-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .nft-select {
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 119, 190, 0.15);
+      padding: 0 12px;
+      outline: none;
+      background: rgba(255, 255, 255, 0.9);
+      color: #1E293B;
+      font-size: 14px;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .nft-hint {
+      color: #64748B;
+      font-size: 12px;
+      line-height: 1.3;
+
+      &.error {
+        color: #EF4444;
       }
     }
 

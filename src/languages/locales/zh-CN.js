@@ -83,7 +83,16 @@ export default {
       to: "接收地址",
       toPlaceholder: "默认当前钱包地址",
       inputAddress: "请输入合约地址(0x...)",
-      fee: "NFT手续费"
+      fee: "NFT手续费",
+      myNfts: "我的NFT",
+      refresh: "刷新",
+      loading: "加载中",
+      chooseTokenId: "请选择 TokenId",
+      manualInput: "手动输入",
+      useList: "使用列表",
+      notEnumerable: "该NFT不支持链上枚举（ERC721Enumerable），请手动输入 TokenId",
+      noNft: "当前钱包未持有该NFT",
+      readFailed: "读取NFT列表失败，请检查网络或合约地址"
     }
   },
   notice: {
