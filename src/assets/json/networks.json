@@ -37,7 +37,7 @@
   
     {
         "name": "Dolphinet",
-        "chainId": 86606,
+        "chainId": 1519,
         "img": "cp.svg",
         "rpcUrl": "https://rpc-testnet.dolphinode.world",
         "wssUrl": "wss://wss-testnet.dolphinode.world",

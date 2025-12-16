@@ -624,10 +624,11 @@ export async function bridgeMethodOptimized({
   BRIDGE_MESSAGES
 }) {
   try {
-    // 修改判断逻辑
-    const shouldUseBridgeEthOptimized = 
-      (fromChainId === 86606 && tokenName === "DOL") ||  // Dolphinet 上跨链 DOL（原生币）
-      (fromChainId !== 86606 && tokenName === "ETH")    // 除了 AquaLink 以外的链跨链 ETH
+    // 修改判断逻辑：Dolphinet(testnet=1519/mainnet=1520) 的原生币为 DOL，其它链的原生币为 ETH
+    const isDolphinetChain = fromChainId === 1519 || fromChainId === 1520
+    const shouldUseBridgeEthOptimized =
+      (isDolphinetChain && tokenName === "DOL") ||  // Dolphinet 上跨链 DOL（原生币）
+      (!isDolphinetChain && tokenName === "ETH")    // 其它链跨链 ETH（原生币）
     
     if (shouldUseBridgeEthOptimized) {
       return await bridgeEthOptimized({

@@ -1111,7 +1111,10 @@ watch(
 )
 
 async function getTokenBalance({ provider, address, chainInfo, tokenName }) {
-  const isDolphinet = chainInfo.chainId === 86606;
+  const isDolphinet =
+    (chainInfo?.currency?.toUpperCase?.() === 'DOL') ||
+    chainInfo.chainId === 1519 ||
+    chainInfo.chainId === 1520;
   const token = tokenName.toUpperCase();
   const nativeToken = chainInfo.currency.toUpperCase();
 

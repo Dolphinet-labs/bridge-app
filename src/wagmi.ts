@@ -4,7 +4,7 @@ import { defineChain } from 'viem'
 
 // ✅ 1. 定义各链
 const dolphinetTestnet = defineChain({
-  id: 86606,
+  id: 1519,
   name: 'Dolphinet Testnet',
   nativeCurrency: { name: 'Dolphinet', symbol: 'DOL', decimals: 18 },
   rpcUrls: {
