@@ -92,7 +92,7 @@
           </div>
           <div class="nft-row">
             <div class="nft-label">{{ $t('bridge.nft.tokenId') }}</div>
-            <div class="nft-tokenid-wrap">
+            <div class="nft-tokenid-line">
               <div class="nft-tokenid-actions">
                 <button class="nft-mini-btn" type="button" @click="refreshOwnedNfts" :disabled="isLoadingNftList">
                   {{ isLoadingNftList ? $t('bridge.nft.loading') : $t('bridge.nft.refresh') }}
@@ -100,11 +100,6 @@
                 <button class="nft-mini-btn" type="button" @click="toggleTokenIdMode">
                   {{ nftTokenIdMode === 'list' ? $t('bridge.nft.manualInput') : $t('bridge.nft.useList') }}
                 </button>
-              </div>
-
-              <div v-if="nftListError" class="nft-hint error">{{ nftListError }}</div>
-              <div v-else-if="nftTokenIdMode === 'list' && nftOwnedTokenIds.length" class="nft-hint">
-                {{ $t('bridge.nft.myNfts') }}：{{ nftOwnedTokenIds.length }}
               </div>
 
               <select
@@ -123,6 +118,10 @@
                 v-model.trim="nftTokenId"
                 placeholder="0"
               />
+            </div>
+            <div v-if="nftListError" class="nft-hint error">{{ nftListError }}</div>
+            <div v-else-if="nftTokenIdMode === 'list' && nftOwnedTokenIds.length" class="nft-hint">
+              {{ $t('bridge.nft.myNfts') }}：{{ nftOwnedTokenIds.length }}
             </div>
           </div>
           <div class="nft-row">
@@ -1502,7 +1501,7 @@ async function handleSubmitNft() {
       }
 
       .nft-input {
-        height: 40px;
+        height: 36px;
         border-radius: 12px;
         border: 1px solid rgba(0, 119, 190, 0.15);
         padding: 0 12px;
@@ -1510,6 +1509,7 @@ async function handleSubmitNft() {
         background: rgba(255, 255, 255, 0.9);
         color: #1E293B;
         font-size: 14px;
+        flex: 1;
 
         &::placeholder {
           color: #94A3B8;
@@ -1517,9 +1517,9 @@ async function handleSubmitNft() {
       }
     }
 
-    .nft-tokenid-wrap {
+    .nft-tokenid-line {
       display: flex;
-      flex-direction: column;
+      align-items: center;
       gap: 8px;
     }
 
@@ -1527,11 +1527,12 @@ async function handleSubmitNft() {
       display: flex;
       gap: 8px;
       justify-content: flex-end;
+      flex-shrink: 0;
     }
 
     .nft-mini-btn {
-      height: 28px;
-      padding: 0 10px;
+      height: 26px;
+      padding: 0 8px;
       border-radius: 999px;
       border: 1px solid rgba(0, 119, 190, 0.18);
       background: rgba(255, 255, 255, 0.9);
@@ -1550,7 +1551,7 @@ async function handleSubmitNft() {
     }
 
     .nft-select {
-      height: 40px;
+      height: 36px;
       border-radius: 12px;
       border: 1px solid rgba(0, 119, 190, 0.15);
       padding: 0 12px;
@@ -1560,6 +1561,7 @@ async function handleSubmitNft() {
       font-size: 14px;
       -webkit-appearance: none;
       appearance: none;
+      flex: 1;
     }
 
     .nft-hint {
