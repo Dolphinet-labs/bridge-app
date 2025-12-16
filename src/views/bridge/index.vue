@@ -473,7 +473,7 @@ const coinList = [
   },
   {
     img: "cp.svg",
-    name: "AQUA",
+    name: "DOL",
     minBridgeAmount: 0.1
   },
 
@@ -487,7 +487,7 @@ const TOKEN_DECIMALS = {
   USDC: 18,
   DAI: 18,
   WBTC: 8,
-  AQUA: 18
+  DOL: 18
 };
 
 import { switchChain } from '@wagmi/core'
@@ -686,7 +686,7 @@ const allCoinList = ref([
   },
   {
     img: "cp.svg",
-    name: "AQUA",
+    name: "DOL",
     minBridgeAmount: 0.1
   },
 
@@ -1111,27 +1111,27 @@ watch(
 )
 
 async function getTokenBalance({ provider, address, chainInfo, tokenName }) {
-  const isAquaLink = chainInfo.chainId === 86606;
+  const isDolphinet = chainInfo.chainId === 86606;
   const token = tokenName.toUpperCase();
   const nativeToken = chainInfo.currency.toUpperCase();
 
   try {
-    // ✅ 情况 1：原生币（如 ETH、AQUA），且不是 AquaLink 链上的 ETH
-    if (token === nativeToken && !(isAquaLink && token === 'ETH')) {
+    // ✅ 情况 1：原生币（如 ETH、DOL），且不是 Dolphinet 链上的 ETH
+    if (token === nativeToken && !(isDolphinet && token === 'ETH')) {
       const balance = await provider.getBalance(address);
       console.log(`[原生币] ${token} - 余额:`, balance.toString());
       return parseFloat(ethers.formatUnits(balance, 18)).toFixed(6);
     }
 
-    // ✅ 情况 2：AquaLink链上的 ETH，走 ethContract 查询
-    if (isAquaLink && token === 'ETH') {
+    // ✅ 情况 2：Dolphinet链上的 ETH，走 ethContract 查询
+    if (isDolphinet && token === 'ETH') {
       console.log(chainInfo)
       const ethContract = chainInfo.ethContract;
       if (!ethContract) {
-        console.warn(`[警告] AquaLink链未配置 ETH 合约地址`);
+        console.warn(`[警告] Dolphinet链未配置 ETH 合约地址`);
         return '0.000000';
       }
-      console.log(`[AquaLink链 ETH] 通过合约 ${ethContract} 查询`);
+      console.log(`[Dolphinet链 ETH] 通过合约 ${ethContract} 查询`);
       const contract = new ethers.Contract(ethContract, erc20ABI, provider);
       const balance = await contract.balanceOf(address);
       return parseFloat(ethers.formatUnits(balance, 18)).toFixed(6);
@@ -1240,10 +1240,10 @@ const bridgeMethod = async () => {
     if (!bridgeContractAddress) {
       throw new Error('桥接合约地址未配置')
     }
-    // 合约地址字段映射：AQUA 使用 cpContract（而不是 aquaContract）
+    // 合约地址字段映射：DOL 使用 cpContract（而不是 dolContract）
     const tokenNameUpper = coinChoose.value.name?.toUpperCase?.() || ''
     const tokenKey =
-      tokenNameUpper === 'AQUA' ? 'cpContract' :
+      tokenNameUpper === 'DOL' ? 'cpContract' :
       tokenNameUpper === 'ETH'  ? 'ethContract' :
       tokenNameUpper === 'USDT' ? 'usdtContract' :
       (coinChoose.value.name.toLowerCase() + 'Contract')

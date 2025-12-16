@@ -626,7 +626,7 @@ export async function bridgeMethodOptimized({
   try {
     // 修改判断逻辑
     const shouldUseBridgeEthOptimized = 
-      (fromChainId === 86606 && tokenName === "AQUA") ||  // AquaLink 上跨链 AQUA 币
+      (fromChainId === 86606 && tokenName === "DOL") ||  // Dolphinet 上跨链 DOL（原生币）
       (fromChainId !== 86606 && tokenName === "ETH")    // 除了 AquaLink 以外的链跨链 ETH
     
     if (shouldUseBridgeEthOptimized) {

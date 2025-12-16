@@ -123,7 +123,7 @@ line-height: normal;color: #1a1a1a;">{{ status }}</span>
 
               <div class="exit">
                 <div class="blances">
-                  {{ balance }}AQUA
+                  {{ balance }}DOL
                 </div>
                 <button v-if="status !== 'disconnected'" @click="disconnectbtn()">
                   <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16" fill="none">
@@ -280,14 +280,14 @@ const menuList = computed(() => {
       itemList: [
         {
           name: t("navbar.meun1.menu.name1"),
-          path: "https://explorer.aqualink.com/",
+          path: "https://explorer.dolphinode.world/",
           index: "1-1",
           acitved: true,
           type: "outLink",
         },
         {
           name: t("navbar.meun1.menu.name2"),
-          path: "https://explorer-testnet.aqualink.com/",
+          path: "https://explorer-testnet.dolphinode.world/",
           index: "1-2",
           acitved: true,
           type: "outLink",
@@ -412,7 +412,7 @@ watch(status, (newStatus) => {
     showConnet.value = false;
   }
 });
-const rpcUrl = 'https://rpc-testnet.aqualink.com'
+const rpcUrl = 'https://rpc-testnet.dolphinode.world'
 
 // 使用 ethers 提供的 JSON RPC Provider
 const provider = new JsonRpcProvider(rpcUrl)

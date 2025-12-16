@@ -3,15 +3,20 @@ import { walletConnect, injected } from '@wagmi/vue/connectors'
 import { defineChain } from 'viem'
 
 // ✅ 1. 定义各链
-const aquaLink = defineChain({
+const dolphinetTestnet = defineChain({
   id: 86606,
-  name: 'AquaLink Testnet',
-  nativeCurrency: { name: 'AquaLink', symbol: 'AQUA', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc-testnet.aqualink.com'] } },
+  name: 'Dolphinet Testnet',
+  nativeCurrency: { name: 'Dolphinet', symbol: 'DOL', decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc-testnet.dolphinode.world'],
+      webSocket: ['wss://wss-testnet.dolphinode.world']
+    }
+  },
   blockExplorers: {
     default: {
-      name: 'AquaLink Explorer',
-      url: 'https://explorer-testnet.aqualink.com',
+      name: 'Dolphinet Explorer',
+      url: 'https://explorer-testnet.dolphinode.world',
     },
   },
   testnet: true,
@@ -47,7 +52,7 @@ const optimism = defineChain({
 
 // ✅ 2. 构建 wagmi config
 export const config = createConfig({
-  chains: [aquaLink, sepolia, optimism],
+  chains: [dolphinetTestnet, sepolia, optimism],
   connectors: [
     injected(), // ✅ 添加 injected 连接器支持 MetaMask 等浏览器钱包
     walletConnect({
@@ -56,7 +61,7 @@ export const config = createConfig({
   ],
   storage: createStorage({ storage: localStorage, key: 'vite-vue' }),
   transports: {
-    [aquaLink.id]: http(aquaLink.rpcUrls.default.http[0]),
+    [dolphinetTestnet.id]: http(dolphinetTestnet.rpcUrls.default.http[0]),
     [sepolia.id]: http(sepolia.rpcUrls.default.http[0]),
     [optimism.id]: http(optimism.rpcUrls.default.http[0])
   },

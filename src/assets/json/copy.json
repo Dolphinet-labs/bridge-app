@@ -307,12 +307,12 @@
         ]
     },
     {
-        "name": "AquaLink",
+        "name": "Dolphinet",
         "chainId": 86606,
         "img": "cp.svg",
-        "rpcUrl": "https://rpc-testnet.aqualink.com",
-        "explorerUrl": "https://explorer-testnet.aqualink.com",
-        "currency": "AQUA",
+        "rpcUrl": "https://rpc-testnet.dolphinode.world",
+        "explorerUrl": "https://explorer-testnet.dolphinode.world",
+        "currency": "DOL",
         "nativeTokenContract": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         "usdtContract": "0x6C255b22864bBC176431c42695D16f41576e5618",
         "usdcContract": "0xb884F1C92AF157dD3dcC54512a595b1D9531423d",
