@@ -14,21 +14,8 @@
                 style="background: transparent" :ellipsis="false">
 
                 <div class="net-toggle">
-                  <button
-                    class="net-btn"
-                    :class="{ active: envStore.networkEnv === 'mainnet' }"
-                    @click.stop="envStore.setEnv('mainnet')"
-                    type="button"
-                  >
-                    Mainnet
-                  </button>
-                  <button
-                    class="net-btn"
-                    :class="{ active: envStore.networkEnv === 'testnet' }"
-                    @click.stop="envStore.setEnv('testnet')"
-                    type="button"
-                  >
-                    Testnet
+                  <button class="net-btn single" type="button" @click.stop="envStore.toggleEnv()">
+                    {{ envLabel }}
                   </button>
                 </div>
 
@@ -58,21 +45,8 @@
               <el-menu :default-active="activeIndex" class="el-menu-demo2" ref="menuRef" mode="horizontal"
                 @select="handleSelect" style="background: transparent" :ellipsis="false">
                 <div class="net-toggle">
-                  <button
-                    class="net-btn"
-                    :class="{ active: envStore.networkEnv === 'mainnet' }"
-                    @click.stop="envStore.setEnv('mainnet')"
-                    type="button"
-                  >
-                    Mainnet
-                  </button>
-                  <button
-                    class="net-btn"
-                    :class="{ active: envStore.networkEnv === 'testnet' }"
-                    @click.stop="envStore.setEnv('testnet')"
-                    type="button"
-                  >
-                    Testnet
+                  <button class="net-btn single" type="button" @click.stop="envStore.toggleEnv()">
+                    {{ envLabel }}
                   </button>
                 </div>
                 <el-sub-menu index="6">
@@ -212,6 +186,7 @@ const router = useRouter();
 const { locale, t } = useI18n();
 import img from "../assets/wallconnect.svg";
 const envStore = useEnvStore()
+const envLabel = computed(() => (envStore.networkEnv === 'mainnet' ? 'Dolphinet' : 'Dolphinet Testnet'))
 const menuRef = ref();
 const balance = ref('0')
 const chainId = useChainId();
@@ -653,6 +628,11 @@ const handleSelect = (index, indexPath) => {
   -webkit-appearance: none;
   appearance: none;
   user-select: none;
+}
+
+.net-btn.single {
+  border-color: rgba(0, 119, 190, 0.28);
+  color: #0077BE;
 }
 
 .net-btn.active {
@@ -1347,6 +1327,7 @@ a {
           -webkit-tap-highlight-color: transparent;
           touch-action: manipulation;
           -webkit-appearance: none;
+          appearance: none;
           user-select: none;
         }
 
@@ -1386,6 +1367,7 @@ a {
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             -webkit-appearance: none;
+            appearance: none;
             user-select: none;
           }
 

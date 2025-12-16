@@ -3,6 +3,7 @@
         "name": "Sepolia TestNet",
         "chainId": 11155111,
         "img": "eth.svg",
+        "env": "testnet",
         "rpcUrl": "https://eth-sepolia.g.alchemy.com/v2/afSCtxPWD3NE5vSjJm2GQ",
         "explorerUrl": "https://sepolia.etherscan.io",
         "currency": "ETH",
@@ -22,6 +23,7 @@
         "name": "Op TestNet",
         "chainId": 11155420,
         "img": "optimism.svg",
+        "env": "testnet",
         "rpcUrl": "https://opt-sepolia.g.alchemy.com/v2/afSCtxPWD3NE5vSjJm2GQ",
         "explorerUrl": "https://sepolia-optimism.etherscan.io",
         "currency": "ETH",
@@ -36,9 +38,10 @@
    
   
     {
-        "name": "Dolphinet",
+        "name": "Dolphinet Testnet",
         "chainId": 1519,
         "img": "cp.svg",
+        "env": "testnet",
         "rpcUrl": "https://rpc-testnet.dolphinode.world",
         "wssUrl": "wss://wss-testnet.dolphinode.world",
         "explorerUrl": "https://explorer-testnet.dolphinode.world",
@@ -53,9 +56,10 @@
     }
     ,
     {
-        "name": "Dolphinet Mainnet",
+        "name": "Dolphinet",
         "chainId": 1520,
         "img": "cp.svg",
+        "env": "mainnet",
         "rpcUrl": "https://rpc.dolphinode.world",
         "wssUrl": "wss://wss.dolphinode.world",
         "explorerUrl": "https://explorer.dolphinode.world",

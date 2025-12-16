@@ -435,11 +435,12 @@ const { visible, isLogin } = storeToRefs(counterStore)
 
 const allNetworks = networks
 const filteredNetworks = computed(() => {
-  const wantChainId = envStore.isMainnet ? 1520 : 1519
+  const env = envStore.isMainnet ? 'mainnet' : 'testnet'
   return allNetworks.filter((n) => {
-    const isDolphinetLike = (n.currency || '').toUpperCase() === 'DOL'
-    if (!isDolphinetLike) return true
-    return Number(n.chainId) === wantChainId
+    // 规则：Mainnet 只能到 Mainnet；Testnet 只能到 Testnet
+    // 未标注 env 的默认视为 testnet（兼容旧数据）
+    const nEnv = n.env || 'testnet'
+    return nEnv === env
   })
 })
 // 翻译消息常量 - 保持原有的结构，只是扩展内容
