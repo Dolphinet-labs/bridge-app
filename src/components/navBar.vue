@@ -14,7 +14,7 @@
                 style="background: transparent" :ellipsis="false">
 
                 <div class="net-toggle">
-                  <button class="net-btn single" type="button" @click.stop="envStore.toggleEnv()">
+                  <button class="net-btn single" type="button" @click.stop="toggleEnvAndSwitch()">
                     {{ envLabel }}
                   </button>
                 </div>
@@ -45,7 +45,7 @@
               <el-menu :default-active="activeIndex" class="el-menu-demo2" ref="menuRef" mode="horizontal"
                 @select="handleSelect" style="background: transparent" :ellipsis="false">
                 <div class="net-toggle">
-                  <button class="net-btn single" type="button" @click.stop="envStore.toggleEnv()">
+                  <button class="net-btn single" type="button" @click.stop="toggleEnvAndSwitch()">
                     {{ envLabel }}
                   </button>
                 </div>
@@ -172,6 +172,8 @@ import {
   computed,
 } from "vue";
 import { useChainId, useConnect, useDisconnect, useAccount } from "@wagmi/vue";
+import { switchChain } from '@wagmi/core'
+import { config } from '@/wagmi'
 import { injected } from '@wagmi/vue/connectors';
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
@@ -194,6 +196,28 @@ const { connect, connectors, error } = useConnect();
 const { disconnect } = useDisconnect();
 const { address, status } = useAccount();
 const targetChainId = computed(() => (envStore.networkEnv === 'mainnet' ? 1520 : 1519))
+
+async function toggleEnvAndSwitch() {
+  envStore.toggleEnv()
+  // 切到 Mainnet 时自动切换到 1520；切到 Testnet 时自动切换回 1519
+  try {
+    await switchChain(config, { chainId: targetChainId.value })
+    ElMessage({
+      message: `Switched to ${envLabel.value}`,
+      type: 'success',
+      duration: 2000,
+      showClose: true
+    })
+  } catch (e) {
+    // 用户拒绝/钱包不支持/未添加网络等
+    ElMessage({
+      message: `Please switch wallet network to ${envLabel.value} (chainId ${targetChainId.value})`,
+      type: 'warning',
+      duration: 3000,
+      showClose: true
+    })
+  }
+}
 
 onMounted(() => {
   eventBus.on('custom-event', (data) => {
@@ -628,11 +652,23 @@ const handleSelect = (index, indexPath) => {
   -webkit-appearance: none;
   appearance: none;
   user-select: none;
+  transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, transform 0.05s ease;
 }
 
 .net-btn.single {
   border-color: rgba(0, 119, 190, 0.28);
+  background: linear-gradient(135deg, rgba(0, 119, 190, 0.10) 0%, rgba(0, 180, 216, 0.08) 100%);
   color: #0077BE;
+  box-shadow: 0 6px 16px rgba(0, 119, 190, 0.10);
+}
+
+.net-btn.single:hover {
+  border-color: rgba(0, 119, 190, 0.40);
+  box-shadow: 0 8px 20px rgba(0, 119, 190, 0.14);
+}
+
+.net-btn.single:active {
+  transform: scale(0.98);
 }
 
 .net-btn.active {
