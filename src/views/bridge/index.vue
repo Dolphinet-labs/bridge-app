@@ -425,11 +425,23 @@ console.log(networks)
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 import { useCounterStore } from '@/stores/counter'
+import { useEnvStore } from '@/stores/env'
 import { storeToRefs } from 'pinia'
 
 // 拿到 store
 const counterStore = useCounterStore()
+const envStore = useEnvStore()
 const { visible, isLogin } = storeToRefs(counterStore)
+
+const allNetworks = networks
+const filteredNetworks = computed(() => {
+  const wantChainId = envStore.isMainnet ? 1520 : 1519
+  return allNetworks.filter((n) => {
+    const isDolphinetLike = (n.currency || '').toUpperCase() === 'DOL'
+    if (!isDolphinetLike) return true
+    return Number(n.chainId) === wantChainId
+  })
+})
 // 翻译消息常量 - 保持原有的结构，只是扩展内容
 const BRIDGE_MESSAGES = computed(() => ({
   userCancelledAuth: t('bridge.userCancelledAuth'),
@@ -521,11 +533,40 @@ const showModal2 = ref(false)
 const selected = ref("cp")
 const search = ref("")
 const search2 = ref("")
-const chains = ref(networks)
+const chains = ref(filteredNetworks.value)
 const fromBalance = ref(0)
 const toBalance = ref(0)
-const fromChain = ref(networks[0])
-const toChain = ref(networks[1])
+function pickDefaultFrom(list) {
+  const dol = list.find(n => (n.currency || '').toUpperCase() === 'DOL')
+  return dol ? { ...dol } : { ...(list[0] || {}) }
+}
+function pickDefaultTo(list) {
+  // 优先 sepolia，其次第一个非 DOL
+  const sepolia = list.find(n => Number(n.chainId) === 11155111)
+  if (sepolia) return { ...sepolia }
+  const nonDol = list.find(n => (n.currency || '').toUpperCase() !== 'DOL')
+  return nonDol ? { ...nonDol } : { ...(list[0] || {}) }
+}
+
+const fromChain = ref(pickDefaultFrom(filteredNetworks.value))
+const toChain = ref(pickDefaultTo(filteredNetworks.value))
+
+watch(filteredNetworks, (list) => {
+  chains.value = list
+
+  // 如果当前 from/to 不在可用列表中，重置
+  const hasFrom = list.some(n => Number(n.chainId) === Number(fromChain.value?.chainId))
+  const hasTo = list.some(n => Number(n.chainId) === Number(toChain.value?.chainId))
+  if (!hasFrom) fromChain.value = pickDefaultFrom(list)
+  if (!hasTo) toChain.value = pickDefaultTo(list)
+
+  // 如果 from/to 都是 DOL 链（可能在切换环境后），确保至少一个非 DOL
+  const isFromDol = (fromChain.value?.currency || '').toUpperCase() === 'DOL'
+  const isToDol = (toChain.value?.currency || '').toUpperCase() === 'DOL'
+  if (isFromDol && isToDol) {
+    toChain.value = pickDefaultTo(list)
+  }
+}, { immediate: true })
 const state = ref()
 
 
@@ -980,7 +1021,7 @@ function showChain(state1) {
   showModal.value = true
   state.value = state1
   //  console.log(state)
-  chains.value = networks
+  chains.value = filteredNetworks.value
   search.value = ""
 }
 
@@ -1040,7 +1081,7 @@ function fliterChain() {
   chains.value = arr
 
   if (search.value.toLowerCase().trim() === "") {
-    chains.value = networks
+    chains.value = filteredNetworks.value
   }
 }
 

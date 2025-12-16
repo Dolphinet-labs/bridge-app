@@ -51,4 +51,19 @@
         "bridgeContract": "0x558A58D22d5fE5832A2E11Eb0f89552a8C85190f"
         
     }
+    ,
+    {
+        "name": "Dolphinet Mainnet",
+        "chainId": 1520,
+        "img": "cp.svg",
+        "rpcUrl": "https://rpc.dolphinode.world",
+        "wssUrl": "wss://wss.dolphinode.world",
+        "explorerUrl": "https://explorer.dolphinode.world",
+        "currency": "DOL",
+        "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "usdtContract": "",
+        "cpContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "ethContract": "",
+        "bridgeContract": ""
+    }
 ]

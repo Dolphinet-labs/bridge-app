@@ -13,6 +13,25 @@
               <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect"
                 style="background: transparent" :ellipsis="false">
 
+                <div class="net-toggle">
+                  <button
+                    class="net-btn"
+                    :class="{ active: envStore.networkEnv === 'mainnet' }"
+                    @click.stop="envStore.setEnv('mainnet')"
+                    type="button"
+                  >
+                    Mainnet
+                  </button>
+                  <button
+                    class="net-btn"
+                    :class="{ active: envStore.networkEnv === 'testnet' }"
+                    @click.stop="envStore.setEnv('testnet')"
+                    type="button"
+                  >
+                    Testnet
+                  </button>
+                </div>
+
                 <el-sub-menu index="6">
                   <template #title>
                     <img src="@/assets/language.png" alt="" style="height: 20px" />
@@ -38,6 +57,24 @@
             <div class="menu1">
               <el-menu :default-active="activeIndex" class="el-menu-demo2" ref="menuRef" mode="horizontal"
                 @select="handleSelect" style="background: transparent" :ellipsis="false">
+                <div class="net-toggle">
+                  <button
+                    class="net-btn"
+                    :class="{ active: envStore.networkEnv === 'mainnet' }"
+                    @click.stop="envStore.setEnv('mainnet')"
+                    type="button"
+                  >
+                    Mainnet
+                  </button>
+                  <button
+                    class="net-btn"
+                    :class="{ active: envStore.networkEnv === 'testnet' }"
+                    @click.stop="envStore.setEnv('testnet')"
+                    type="button"
+                  >
+                    Testnet
+                  </button>
+                </div>
                 <el-sub-menu index="6">
                   <template #title>
                     <img src="@/assets/language.png" alt="" style="width: 20px" />
@@ -86,7 +123,7 @@
             <h4>{{ $t("link.titel") }}</h4>
           </div>
           <ul class="scroll-area">
-            <li v-for="connector in wallets" :key="connector.id" @click="wallconnects(connector.id, chainId)">
+            <li v-for="connector in wallets" :key="connector.id" @click="wallconnects(connector.id, targetChainId)">
               <span> {{ connector.name }}</span>
               <img :src="connector.name == 'WalletConnect' ? img : connector.icon" alt="" />
 
@@ -166,6 +203,7 @@ import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { JsonRpcProvider, formatEther } from 'ethers'
 import { eventBus } from '@/utils/eventBus'
+import { useEnvStore } from "@/stores/env";
 
 // import { useClipboard } from 'vue-clipboard3'
 import { copyText } from 'vue3-clipboard'
@@ -173,12 +211,14 @@ import { copyText } from 'vue3-clipboard'
 const router = useRouter();
 const { locale, t } = useI18n();
 import img from "../assets/wallconnect.svg";
+const envStore = useEnvStore()
 const menuRef = ref();
 const balance = ref('0')
 const chainId = useChainId();
 const { connect, connectors, error } = useConnect();
 const { disconnect } = useDisconnect();
 const { address, status } = useAccount();
+const targetChainId = computed(() => (envStore.networkEnv === 'mainnet' ? 1520 : 1519))
 
 onMounted(() => {
   eventBus.on('custom-event', (data) => {
@@ -412,10 +452,14 @@ watch(status, (newStatus) => {
     showConnet.value = false;
   }
 });
-const rpcUrl = 'https://rpc-testnet.dolphinode.world'
+const rpcUrl = computed(() =>
+  envStore.networkEnv === 'mainnet'
+    ? 'https://rpc.dolphinode.world'
+    : 'https://rpc-testnet.dolphinode.world'
+)
 
 // 使用 ethers 提供的 JSON RPC Provider
-const provider = new JsonRpcProvider(rpcUrl)
+const provider = computed(() => new JsonRpcProvider(rpcUrl.value))
 watch(locale, (newLocale, oldLocale) => {
   console.log("locale changed:", oldLocale, "=>", newLocale);
 
@@ -434,7 +478,7 @@ watch(address, async (newAddress) => {
 
 async function getBalanceCp(newAddress) {
   try {
-    const raw = await provider.getBalance(newAddress)
+    const raw = await provider.value.getBalance(newAddress)
     balance.value = parseFloat(formatEther(raw)).toFixed(4)
   } catch (err) {
     console.error('查询失败:', err)
@@ -587,6 +631,34 @@ const handleSelect = (index, indexPath) => {
       display: none;
     }
   }
+}
+
+.net-toggle {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.net-btn {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 119, 190, 0.18);
+  background: rgba(255, 255, 255, 0.9);
+  color: #1E293B;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  user-select: none;
+}
+
+.net-btn.active {
+  border-color: rgba(0, 119, 190, 0.35);
+  background: linear-gradient(135deg, rgba(0, 119, 190, 0.12) 0%, rgba(0, 180, 216, 0.10) 100%);
+  color: #0077BE;
 }
 
 :deep(.el-menu-item),

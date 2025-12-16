@@ -22,6 +22,25 @@ const dolphinetTestnet = defineChain({
   testnet: true,
 })
 
+const dolphinetMainnet = defineChain({
+  id: 1520,
+  name: 'Dolphinet Mainnet',
+  nativeCurrency: { name: 'Dolphinet', symbol: 'DOL', decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.dolphinode.world', 'https://rpc-dev01.dolphinode.world'],
+      webSocket: ['wss://wss.dolphinode.world', 'wss://wss-dev01.dolphinode.world']
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: 'Dolphinet Explorer',
+      url: 'https://explorer.dolphinode.world',
+    },
+  },
+  testnet: false,
+})
+
 const sepolia = defineChain({
   id: 11155111,
   name: 'Sepolia Testnet',
@@ -52,7 +71,7 @@ const optimism = defineChain({
 
 // ✅ 2. 构建 wagmi config
 export const config = createConfig({
-  chains: [dolphinetTestnet, sepolia, optimism],
+  chains: [dolphinetTestnet, dolphinetMainnet, sepolia, optimism],
   connectors: [
     injected(), // ✅ 添加 injected 连接器支持 MetaMask 等浏览器钱包
     walletConnect({
@@ -62,6 +81,7 @@ export const config = createConfig({
   storage: createStorage({ storage: localStorage, key: 'vite-vue' }),
   transports: {
     [dolphinetTestnet.id]: http(dolphinetTestnet.rpcUrls.default.http[0]),
+    [dolphinetMainnet.id]: http(dolphinetMainnet.rpcUrls.default.http[0]),
     [sepolia.id]: http(sepolia.rpcUrls.default.http[0]),
     [optimism.id]: http(optimism.rpcUrls.default.http[0])
   },
