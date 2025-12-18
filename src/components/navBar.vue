@@ -4,7 +4,11 @@
       <el-row>
         <el-col :xs="3" :sm="4" :md="5" :lg="9" :xl="11">
           <div class="gridContent">
-            <a href="/" class="flex"><img src="../../AquaLink.png" alt="AquaLink" /></a>
+            <div class="net-toggle">
+              <button class="net-btn single" type="button" @click.stop="toggleEnvAndSwitch()">
+                {{ envLabel }}
+              </button>
+            </div>
           </div>
         </el-col>
         <el-col :xs="21" :sm="20" :md="19" :lg="15" :xl="13">
@@ -12,12 +16,6 @@
             <div class="menu">
               <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect"
                 style="background: transparent" :ellipsis="false">
-
-                <div class="net-toggle">
-                  <button class="net-btn single" type="button" @click.stop="toggleEnvAndSwitch()">
-                    {{ envLabel }}
-                  </button>
-                </div>
 
                 <el-sub-menu index="6">
                   <template #title>
@@ -44,11 +42,6 @@
             <div class="menu1">
               <el-menu :default-active="activeIndex" class="el-menu-demo2" ref="menuRef" mode="horizontal"
                 @select="handleSelect" style="background: transparent" :ellipsis="false">
-                <div class="net-toggle">
-                  <button class="net-btn single" type="button" @click.stop="toggleEnvAndSwitch()">
-                    {{ envLabel }}
-                  </button>
-                </div>
                 <el-sub-menu index="6">
                   <template #title>
                     <img src="@/assets/language.png" alt="" style="width: 20px" />

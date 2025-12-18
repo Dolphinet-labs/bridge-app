@@ -385,7 +385,7 @@ export async function bridgeEthOptimized({
       : 0n
 
     const txValue = amountBigInt + BigInt(nativeFee || 0)
-
+    
     const gasEstimate = await computedGas(
       bridgeABI,
       'BridgeInitiateNativeToken',
@@ -626,7 +626,7 @@ export async function bridgeMethodOptimized({
   try {
     // 修改判断逻辑：Dolphinet(testnet=1519/mainnet=1520) 的原生币为 DOL，其它链的原生币为 ETH
     const isDolphinetChain = fromChainId === 1519 || fromChainId === 1520
-    const shouldUseBridgeEthOptimized =
+    const shouldUseBridgeEthOptimized = 
       (isDolphinetChain && tokenName === "DOL") ||  // Dolphinet 上跨链 DOL（原生币）
       (!isDolphinetChain && tokenName === "ETH")    // 其它链跨链 ETH（原生币）
     
