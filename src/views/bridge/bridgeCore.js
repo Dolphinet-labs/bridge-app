@@ -4,8 +4,8 @@ import { readContract, estimateFeesPerGas, estimateGas, writeContract, waitForTr
 import { config } from '../../wagmi.ts'
 import erc20ABI from "@/assets/abi/erc20ABI"
 import erc721 from "@/assets/abi/erc721ABI.json"
-import bridge from "@/assets/abi/bridgeABI"
-const bridgeABI = bridge.abi
+import poolManager from "@/assets/abi/poolManagerABI.json"
+const bridgeABI = poolManager.abi
 const erc721ABI = erc721.abi
 
 // 手动定义 maxUint256

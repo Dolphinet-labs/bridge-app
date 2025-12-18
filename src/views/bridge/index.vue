@@ -411,8 +411,8 @@ import {
 } from 'ethers';
 import { ref, onMounted, watch, computed, onUnmounted } from "vue"
 import erc20ABI from "@/assets/abi/erc20ABI"
-import bridge from "@/assets/abi/bridgeABI"
-const bridgeABI = bridge.abi
+import poolManager from "@/assets/abi/poolManagerABI.json"
+const bridgeABI = poolManager.abi
 import { parseEther } from 'viem'
 import BigNumber from 'bignumber.js';
 import networks from "../../assets/json/networks.json"
