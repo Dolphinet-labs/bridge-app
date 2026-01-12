@@ -8,7 +8,7 @@ export function getbridgeFees(
     symbol
 ) {
     return axios({
-        url: "https://bridge-api-testnet.aqualink.com/api/v1/bridge-price-fee",
+        url: "https://bridge-api-testnet.cpchain.com/api/v1/bridge-price-fee",
         method: "get",
         params: {
             chain_id,

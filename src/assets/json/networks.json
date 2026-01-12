@@ -1,73 +1,34 @@
 [
     {
-        "name": "Sepolia TestNet",
-        "chainId": 11155111,
-        "img": "eth.svg",
-        "env": "testnet",
-        "rpcUrl": "https://eth-sepolia.g.alchemy.com/v2/afSCtxPWD3NE5vSjJm2GQ",
-        "explorerUrl": "https://sepolia.etherscan.io",
-        "currency": "ETH",
-        "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "usdtContract": "0xe5dE0e7f8d0c44190c8Aa512B4E999d7ec7F65F7",
-        "cpContract":"0x5576cA7b329F2931cDC7D14f11362d03a5760E4E",
-        "ethContract":"0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "bridgeContract": "0xa84593B6FC3DF802fBEa7Ed8a72EEF05Ca6f19f9"
-        
-    },
-
-
-
-
-
-    {
         "name": "Op TestNet",
         "chainId": 11155420,
         "img": "optimism.svg",
-        "env": "testnet",
-        "rpcUrl": "https://opt-sepolia.g.alchemy.com/v2/afSCtxPWD3NE5vSjJm2GQ",
+        "rpcUrl": "https://optimism-sepolia.infura.io/v3/10e3a11b64a748599fef8e9807028d92",
         "explorerUrl": "https://sepolia-optimism.etherscan.io",
         "currency": "ETH",
         "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "usdtContract": "0x39A1eA1f9F1E55898013a494B022e52597099970",
-        "cpContract":"0x572977b99292d985cc39f1574Ae429b61A375813",
-        "ethContract":"0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "bridgeContract": "0x04557519Fb29146d29203faD03B307F1775527E0"
+        "usdtContract": "0xfAcCd5B6f740A602751c72bf13363D0D65aeCA4E",
+        "usdcContract": "0x92c6Cba872b9103e4DDd1020760Dae9Abd1CcF6B",
+        "daiContract": "0xC9fae01048535483a48998fce3D7d2e39f83057b",
+        "ethContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "bnbContract": "0xB8a1Bd9513Aba587e3a63368a9f1955233715a88",
+        "bridgeContract": "0x75Eed84B4338a0E8008Ca102CedD7bA803DE6d81"
         
     },
-
-   
-  
-    {
-        "name": "Dolphinet Testnet",
-        "chainId": 1519,
-        "img": "cp.svg",
-        "env": "testnet",
-        "rpcUrl": "https://rpc-testnet.dolphinode.world",
-        "wssUrl": "wss://wss-testnet.dolphinode.world",
-        "explorerUrl": "https://explorer-testnet.dolphinode.world",
-        "currency": "DOL",
-        "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "usdtContract": "0x6C255b22864bBC176431c42695D16f41576e5618",
-      
-        "cpContract":"0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "ethContract":"0x478210a1678046a0C6af45D159176e75B1BACA91",
-        "bridgeContract": "0x558A58D22d5fE5832A2E11Eb0f89552a8C85190f"
-        
-    }
-    ,
     {
         "name": "Dolphinet",
-        "chainId": 1520,
-        "img": "cp.svg",
-        "env": "mainnet",
-        "rpcUrl": "https://rpc.dolphinode.world",
-        "wssUrl": "wss://wss.dolphinode.world",
-        "explorerUrl": "https://explorer.dolphinode.world",
+        "chainId": 1519,
+        "img": "Dolphinet.png",
+        "rpcUrl": "https://rpc-testnet.dolphinode.world",
+        "explorerUrl": " https://explorer-testnet.dolphinode.world",
         "currency": "DOL",
         "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "usdtContract": "",
-        "cpContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "ethContract": "",
-        "bridgeContract": ""
+        "usdtContract": "0xD52A1bbF51C192eF1eab576c63478B33fd4a1CF1",
+        "usdcContract": "0x268A109a9aFe67c712CbFd07834F6Aa02A6d80cB",
+        "daiContract": "0xbA1D792Da65e48473a4e6525d52C7FD5F07A33Fa",
+        "ethContract": "0xf6fD11b752369F5db636ea0a5279ee72bDDf3A37",
+        "bnbContract": "0x360B2A75f380B1c619198cc681d8D49cc12ae3FD",
+        "bridgeContract": "0x9b9445AeF31AC1B0D16Ed68432e4dCCeBF2f2CF2"
+        
     }
 ]

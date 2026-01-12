@@ -1,28 +1,21 @@
 <template>
   <div class="bridge">
 
-    <div class="swap-container" v-if="bridgeStep === 1">
-      <div class="bridge-mode-tabs">
-        <button
-          class="mode-btn"
-          :class="{ active: bridgeMode === 'token' }"
-          @click="bridgeMode = 'token'"
-        >
-          {{ $t('bridge.mode.token') }}
-        </button>
-        <button
-          class="mode-btn"
-          :class="{ active: bridgeMode === 'nft' }"
-          @click="bridgeMode = 'nft'"
-        >
-          {{ $t('bridge.mode.nft') }}
-        </button>
-      </div>
 
-      <h1>
-        <span class="title-part1">The Ocean of</span>
-        <span class="title-part2">Interoperability</span>
-      </h1>
+    <div style="color: #fff;width:100%; display: flex; align-items: center;justify-content: center;margin-bottom: 30px; ">
+      <el-button-group class="mb-4">
+        <el-button type="success" round @click="$router.push('/')">erc2.0 bridge</el-button>
+        <el-button type="success" round @click="$router.push('/nft')">
+          nft bridge
+
+        </el-button>
+      </el-button-group>
+
+
+    </div>
+
+    <div class="swap-container" v-if="bridgeStep === 1">
+
       <div class="content">
         <div class="item">
           <div class="chain-card left" @click="showChain(1)">
@@ -49,7 +42,7 @@
           </div>
         </div>
 
-        <div class="amount-card" v-if="bridgeMode === 'token'">
+        <div class="amount-card">
           <!-- 左侧 -->
           <div class="amount-main">
             <div class="amount-value">
@@ -62,7 +55,17 @@
           </div>
           <!-- 右侧 -->
           <div class="amount-side">
-            <div class="token-selector" @click="showCoin()">
+            <div class="token-selector" @click="showCoin()"  v-if="fromChain.chainId == 1519 && coinChoose.name == 'USDC'">
+
+              <img :src="getImageUrl_1('usdol.png')" class="token-icon"  />
+              <span>USDOL</span>
+              <svg class="arrow" width="16" height="16" viewBox="0 0 20 20">
+                <path d="M6 8l4 4 4-4" stroke="#aaa" stroke-width="2" fill="none" stroke-linecap="round" />
+              </svg>
+            </div>
+
+
+            <div  class="token-selector" @click="showCoin()"  v-else>
 
               <img :src="getImageUrl_1(coinChoose.img)" class="token-icon" />
               <span>{{ coinChoose.name }}</span>
@@ -73,70 +76,24 @@
             <div class="amount-avail">{{ $t('bridge.Available') }}
               <img src="@/assets/images/bridge/loading-gray.svg" v-if="isLoadingBalance" alt="">
               <span v-else>
-                &nbsp;{{ fromBalance }}{{ coinChoose.name }}
+                &nbsp;{{ fromBalance }}
+                {{fromChain.chainId == 1519 && coinChoose.name == 'USDC'?'USDOL' :coinChoose.name }}
               </span>
 
             </div>
           </div>
         </div>
 
-        <!-- NFT 模式表单 -->
-        <div class="nft-card" v-if="bridgeMode === 'nft'">
-          <div class="nft-row">
-            <div class="nft-label">{{ $t('bridge.nft.localCollection') }}</div>
-            <input class="nft-input" v-model.trim="nftLocalCollection" :placeholder="$t('bridge.nft.inputAddress')" />
-          </div>
-          <div class="nft-row">
-            <div class="nft-label">{{ $t('bridge.nft.remoteCollection') }}</div>
-            <input class="nft-input" v-model.trim="nftRemoteCollection" :placeholder="$t('bridge.nft.inputAddress')" />
-          </div>
-          <div class="nft-row">
-            <div class="nft-label">{{ $t('bridge.nft.tokenId') }}</div>
-            <div class="nft-tokenid-line">
-              <div class="nft-tokenid-actions">
-                <button class="nft-mini-btn" type="button" @click="refreshOwnedNfts" :disabled="isLoadingNftList">
-                  {{ isLoadingNftList ? $t('bridge.nft.loading') : $t('bridge.nft.refresh') }}
-                </button>
-                <button class="nft-mini-btn" type="button" @click="toggleTokenIdMode">
-                  {{ nftTokenIdMode === 'list' ? $t('bridge.nft.manualInput') : $t('bridge.nft.useList') }}
-                </button>
-              </div>
+        <div class="summary-card">
+          <div class="summary-main"  v-if="fromChain.chainId == 1519 && coinChoose.name == 'USDC'">
+            <img class="summary-icon" :src="getImageUrl_1('usdol.png')" alt="ETH" />
+            <div class="summary-info">
+              <div class="summary-amt">{{ bridgeAmount }}USDOL</div>
 
-              <select
-                v-if="nftTokenIdMode === 'list' && nftOwnedTokenIds.length"
-                class="nft-select"
-                v-model="nftSelectedTokenId"
-              >
-                <option value="" disabled>{{ $t('bridge.nft.chooseTokenId') }}</option>
-                <option v-for="id in nftOwnedTokenIds" :key="id" :value="id">{{ id }}</option>
-              </select>
-
-              <input
-                v-else
-                class="nft-input"
-                type="number"
-                v-model.trim="nftTokenId"
-                placeholder="0"
-              />
-            </div>
-            <div v-if="nftListError" class="nft-hint error">{{ nftListError }}</div>
-            <div v-else-if="nftTokenIdMode === 'list' && nftOwnedTokenIds.length" class="nft-hint">
-              {{ $t('bridge.nft.myNfts') }}：{{ nftOwnedTokenIds.length }}
             </div>
           </div>
-          <div class="nft-row">
-            <div class="nft-label">{{ $t('bridge.nft.to') }}</div>
-            <input class="nft-input" v-model.trim="nftToAddress" :placeholder="$t('bridge.nft.toPlaceholder')" />
-          </div>
-          <div class="nft-fee">
-            {{ $t('bridge.nft.fee') }}：
-            <img v-if="isLoadingNftFee" src="@/assets/images/bridge/loading-gray.svg" alt="" />
-            <span v-else>{{ nftFeeDisplay }}</span>
-          </div>
-        </div>
 
-        <div class="summary-card" v-if="bridgeMode === 'token'">
-          <div class="summary-main">
+          <div class="summary-main"  v-else>
             <img class="summary-icon" :src="getImageUrl_1(coinChoose.img)" alt="ETH" />
             <div class="summary-info">
               <div class="summary-amt">{{ bridgeAmount }}{{ coinChoose.name }}</div>
@@ -147,7 +104,7 @@
             <div class="summary-fee">{{ $t('bridge.handlingfee') }}
 
               <img v-if="isloadingGas" src="@/assets/images/bridge/loading-gray.svg" alt="">
-              <span v-else> ${{ allusdtFees }}({{ allbridgeFees }}{{ coinChoose.name }})</span>
+              <span v-else> ${{ allusdtFees }}({{ allbridgeFees }}{{ fromChain.chainId == 1519 && coinChoose.name == 'USDC'?'USDOL' :coinChoose.name }})</span>
             </div>
             <div class="summary-time">
               {{ $t('bridge.transferTime') }}
@@ -167,35 +124,20 @@
           <span v-if="!isInsufficient"> {{ $t('bridge.Insufficient') }} </span>
           <span v-else>{{ $t('bridge.Crosschain') }}</span>
         </button> -->
-        <button
-          class="submit-btn"
-          v-if="bridgeMode === 'token'"
-          :disabled="address && (!amount || !isInsufficient)"
-          @click="handleSubmitClick"
-        >
+        <button class="submit-btn" :disabled="address && (!amount || !isInsufficient)" @click="handleSubmitClick">
           <span v-if="!address">{{ $t('bridge.connectWallet') }}</span>
           <span v-else-if="!amount">{{ $t('bridge.enterValidAmount') }}</span>
           <span v-else-if="!isInsufficient">{{ $t('bridge.Insufficient') }}</span>
           <span v-else>{{ $t('bridge.Crosschain') }}</span>
         </button>
-
-        <button
-          class="submit-btn"
-          v-else
-          :disabled="!canSubmitNft"
-          @click="handleSubmitNft"
-        >
-          <span v-if="!address">{{ $t('bridge.connectWallet') }}</span>
-          <span v-else>{{ $t('bridge.nft.crosschain') }}</span>
-        </button>
       </div>
     </div>
 
 
-    <div class="confirm-modal" v-if="bridgeStep === 2">
+    <div class="confirm-modal"  v-if="bridgeStep === 2">
       <!-- 顶部标题与关闭 -->
       <div class="modal-header">
-        <el-icon style="color: #1a1a1a;cursor: pointer;" @click="tab(1)">
+        <el-icon style="color: #fff;cursor: pointer;" @click="tab(1)">
           <Back />
         </el-icon>
         <!-- <i class="el-icon-back" style="color: #fff;cursor: pointer;" @click="tab(1)"></i> -->
@@ -212,7 +154,11 @@
           </div>
           <span class="block-addr"> {{ ellipsisFilter(address) }}</span>
         </div>
-        <div class="block-amount">
+        <div class="block-amount" v-if="fromChain.chainId == 1519 && coinChoose.name == 'USDC'">
+          <img :src="getImageUrl_1('usdol.png')" class="amount-icon" alt="">
+          <span class="amount-value">{{ amount }} USDOL</span>
+        </div>
+        <div class="block-amount" v-else>
           <img :src="getImageUrl_1(coinChoose.img)" class="amount-icon" alt="">
           <span class="amount-value">{{ amount }} {{ coinChoose.name }}</span>
         </div>
@@ -226,7 +172,13 @@
           </div>
           <span class="block-addr"> {{ ellipsisFilter(address) }}</span>
         </div>
-        <div class="block-amount">
+        <div class="block-amount" v-if="toChain.chainId == 1519 && coinChoose.name == 'USDC'">
+          <img :src="getImageUrl_1('usdol.png')" class="amount-icon" alt="">
+          <span class="amount-value">{{ bridgeAmount }} USDOL</span>
+        </div>
+
+
+        <div class="block-amount" v-else>
           <img :src="getImageUrl_1(coinChoose.img)" class="amount-icon" alt="">
           <span class="amount-value">{{ bridgeAmount }} {{ coinChoose.name }}</span>
         </div>
@@ -290,20 +242,30 @@
         </div>
 
         <div class="chain-list">
-          <div v-for="coin in allCoinList" :key="coin.name" class="chain-item"
-            :class="{ active: coin.name === coinChoose.name }" @click="select2(coin)">
-            <img :src="getImageUrl_1(coin.img)" alt="" class="chain-icon">
+          <div v-for="coin in allCoinList" :key="coin.name" :class="{ active: coin.name === coinChoose.name }"
+            @click="select2(coin)">
 
+            <div v-if="fromChain.chainId == 1519 && coin.name == 'USDC'" class="chain-item">
+              <img :src="getImageUrl_1('usdol.png')" alt="" class="chain-icon">
+              <span class="chain-name">USDOL</span>
 
-            <span class="chain-name">{{ coin.name }}</span>
-            <span v-if="coin.name === coinChoose.name" class="check-mark">✔</span>
+              <span v-if="coin.name === coinChoose.name" class="check-mark">✔</span>
+            </div>
+            <div v-else class="chain-item">
+              <img :src="getImageUrl_1(coin.img)" alt="" class="chain-icon">
+              <span class="chain-name">{{ coin.name }}</span>
+
+              <span v-if="coin.name === coinChoose.name" class="check-mark">✔</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <!-- 历史记录  -->
     <div class="recordList">
-      <div class="records-title">{{ $t('bridge.record.title') }}</div>
+      <div class="records-title" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; ">{{ $t('bridge.record.title') }}
+        <el-icon :size="20" @click="getRecordsList()"><Refresh /></el-icon>
+      </div>
       <div v-if="records.length > 0">
         <table cellpadding="0" cellspacing="0">
           <thead>
@@ -411,9 +373,9 @@ import {
 } from 'ethers';
 import { ref, onMounted, watch, computed, onUnmounted } from "vue"
 import erc20ABI from "@/assets/abi/erc20ABI"
-import poolManager from "@/assets/abi/poolManagerABI.json"
-const bridgeABI = poolManager.abi
-import { parseEther } from 'viem'
+import bridge from "@/assets/abi/bridgeABI"
+const bridgeABI = bridge.abi
+import { parseEther, parseUnits } from 'viem'
 import BigNumber from 'bignumber.js';
 import networks from "../../assets/json/networks.json"
 import { getbridgeFees } from "@/api/bridgePrice"
@@ -424,24 +386,26 @@ console.log(networks)
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 import { useCounterStore } from '@/stores/counter'
-import { useEnvStore } from '@/stores/env'
 import { storeToRefs } from 'pinia'
 
+
+
+import { switchChain } from '@wagmi/core'
+import {
+  useChainId, useConnect, useDisconnect, useAccount, useAccountEffect, useWriteContract,
+  useReadContract,
+  useWaitForTransactionReceipt
+} from '@wagmi/vue'
+
+const { connect, connectors, error } = useConnect();
+const { address, status, chain } = useAccount()
+import { config } from '../../wagmi.ts' // 确保路径正确
+
+// 在 script setup 的导入部分添加
+import { bridgeMethodOptimized } from './bridgeCore.js'
 // 拿到 store
 const counterStore = useCounterStore()
-const envStore = useEnvStore()
 const { visible, isLogin } = storeToRefs(counterStore)
-
-const allNetworks = networks
-const filteredNetworks = computed(() => {
-  const env = envStore.isMainnet ? 'mainnet' : 'testnet'
-  return allNetworks.filter((n) => {
-    // 规则：Mainnet 只能到 Mainnet；Testnet 只能到 Testnet
-    // 未标注 env 的默认视为 testnet（兼容旧数据）
-    const nEnv = n.env || 'testnet'
-    return nEnv === env
-  })
-})
 // 翻译消息常量 - 保持原有的结构，只是扩展内容
 const BRIDGE_MESSAGES = computed(() => ({
   userCancelledAuth: t('bridge.userCancelledAuth'),
@@ -472,53 +436,6 @@ const UI_MESSAGES = computed(() => ({
   fundsArrived: t('bridge.fundsArrive'),
   historyAdded: t('bridge.historyAdded')
 }))
-let ws = "";
-const coinList = [
-  {
-    img: "eth.svg",
-    name: "ETH",
-    minBridgeAmount: 0.1
-  }, {
-    img: "usdt.png",
-    name: "USDT",
-    minBridgeAmount: 0.1
-  },
-  {
-    img: "cp.svg",
-    name: "DOL",
-    minBridgeAmount: 0.1
-  },
-
-
-
-]
-
-const TOKEN_DECIMALS = {
-  ETH: 18,
-  USDT: 18,
-  USDC: 18,
-  DAI: 18,
-  WBTC: 8,
-  DOL: 18
-};
-
-import { switchChain } from '@wagmi/core'
-import { readContract } from '@wagmi/core'
-import {
-  useChainId, useConnect, useDisconnect, useAccount, useAccountEffect, useWriteContract,
-  useReadContract,
-  useWaitForTransactionReceipt
-} from '@wagmi/vue'
-
-const { connect, connectors, error } = useConnect();
-const { address, status, chain } = useAccount()
-import { config } from '../../wagmi.ts' // 确保路径正确
-
-// 在 script setup 的导入部分添加
-import { bridgeMethodOptimized } from './bridgeCore.js'
-import { bridgeNftOptimized } from './bridgeCore.js'
-import erc721 from "@/assets/abi/erc721ABI.json"
-const erc721ABI = erc721.abi
 const pageNumber = ref(1)
 
 const pageSize = ref(5)
@@ -533,40 +450,11 @@ const showModal2 = ref(false)
 const selected = ref("cp")
 const search = ref("")
 const search2 = ref("")
-const chains = ref(filteredNetworks.value)
+const chains = ref(networks)
 const fromBalance = ref(0)
 const toBalance = ref(0)
-function pickDefaultFrom(list) {
-  const dol = list.find(n => (n.currency || '').toUpperCase() === 'DOL')
-  return dol ? { ...dol } : { ...(list[0] || {}) }
-}
-function pickDefaultTo(list) {
-  // 优先 sepolia，其次第一个非 DOL
-  const sepolia = list.find(n => Number(n.chainId) === 11155111)
-  if (sepolia) return { ...sepolia }
-  const nonDol = list.find(n => (n.currency || '').toUpperCase() !== 'DOL')
-  return nonDol ? { ...nonDol } : { ...(list[0] || {}) }
-}
-
-const fromChain = ref(pickDefaultFrom(filteredNetworks.value))
-const toChain = ref(pickDefaultTo(filteredNetworks.value))
-
-watch(filteredNetworks, (list) => {
-  chains.value = list
-
-  // 如果当前 from/to 不在可用列表中，重置
-  const hasFrom = list.some(n => Number(n.chainId) === Number(fromChain.value?.chainId))
-  const hasTo = list.some(n => Number(n.chainId) === Number(toChain.value?.chainId))
-  if (!hasFrom) fromChain.value = pickDefaultFrom(list)
-  if (!hasTo) toChain.value = pickDefaultTo(list)
-
-  // 如果 from/to 都是 DOL 链（可能在切换环境后），确保至少一个非 DOL
-  const isFromDol = (fromChain.value?.currency || '').toUpperCase() === 'DOL'
-  const isToDol = (toChain.value?.currency || '').toUpperCase() === 'DOL'
-  if (isFromDol && isToDol) {
-    toChain.value = pickDefaultTo(list)
-  }
-}, { immediate: true })
+const fromChain = ref(networks[0])
+const toChain = ref(networks[1])
 const state = ref()
 
 
@@ -582,140 +470,13 @@ const Visible = ref(true)
 const isLoadingBalance = ref(false)
 const position = ref('')
 const bridgeStep = ref(1)
-const bridgeMode = ref('token') // token | nft
-
-// NFT form state
-import nftCollections from "../../assets/json/nftCollections.json"
-const nftLocalCollection = ref('')
-const nftRemoteCollection = ref('')
-const nftTokenId = ref('') // 手动输入 tokenId
-const nftSelectedTokenId = ref('') // 列表选择 tokenId
-const nftTokenIdMode = ref('manual') // manual | list
-const nftToAddress = ref('')
-const isLoadingNftFee = ref(false)
-const nftFeeWei = ref(0n)
-const isLoadingNftList = ref(false)
-const nftOwnedTokenIds = ref([])
-const nftListError = ref('')
-const nftFeeDisplay = computed(() => {
-  try {
-    if (!nftFeeWei.value) return '0'
-    return `${formatUnits(nftFeeWei.value, 18)} ETH`
-  } catch {
-    return '0'
-  }
-})
-
-const canSubmitNft = computed(() => {
-  const effectiveTokenId = nftTokenIdMode.value === 'list' ? nftSelectedTokenId.value : nftTokenId.value
-  return !!address.value &&
-    !!nftLocalCollection.value &&
-    !!nftRemoteCollection.value &&
-    effectiveTokenId !== '' &&
-    !!nftToAddress.value
-})
-
-const effectiveNftTokenId = computed(() => {
-  return nftTokenIdMode.value === 'list' ? nftSelectedTokenId.value : nftTokenId.value
-})
-
-function toggleTokenIdMode() {
-  if (nftTokenIdMode.value === 'list') {
-    nftTokenIdMode.value = 'manual'
-    return
-  }
-  nftTokenIdMode.value = 'list'
-  if (nftOwnedTokenIds.value.length && !nftSelectedTokenId.value) {
-    nftSelectedTokenId.value = nftOwnedTokenIds.value[0]
-  }
-}
-
-async function refreshOwnedNfts() {
-  // 只有 NFT 模式才加载
-  if (bridgeMode.value !== 'nft') return
-  nftListError.value = ''
-  nftOwnedTokenIds.value = []
-  nftSelectedTokenId.value = ''
-
-  if (!address.value) return
-  if (!nftLocalCollection.value || !ethers.isAddress(nftLocalCollection.value)) return
-
-  try {
-    isLoadingNftList.value = true
-
-    // 仅当 NFT 合约支持 ERC721Enumerable 才能链上枚举 tokenId
-    const ERC721_ENUMERABLE_ID = '0x780e9d63'
-    let enumerable = false
-    try {
-      enumerable = await readContract(config, {
-        chainId: fromChain.value.chainId,
-        address: nftLocalCollection.value,
-        abi: erc721ABI,
-        functionName: 'supportsInterface',
-        args: [ERC721_ENUMERABLE_ID]
-      })
-    } catch {
-      enumerable = false
-    }
-
-    const bal = await readContract(config, {
-      chainId: fromChain.value.chainId,
-      address: nftLocalCollection.value,
-      abi: erc721ABI,
-      functionName: 'balanceOf',
-      args: [address.value]
-    })
-
-    const balance = BigInt(bal || 0)
-    if (balance === 0n) {
-      nftOwnedTokenIds.value = []
-      nftListError.value = t('bridge.nft.noNft')
-      return
-    }
-
-    if (!enumerable) {
-      nftListError.value = t('bridge.nft.notEnumerable')
-      // 仍可手动输入 tokenId
-      return
-    }
-
-    const limit = 50n
-    const count = balance > limit ? limit : balance
-    const ids = []
-    for (let i = 0n; i < count; i++) {
-      const tokenId = await readContract(config, {
-        chainId: fromChain.value.chainId,
-        address: nftLocalCollection.value,
-        abi: erc721ABI,
-        functionName: 'tokenOfOwnerByIndex',
-        args: [address.value, i]
-      })
-      ids.push((BigInt(tokenId)).toString())
-    }
-
-    nftOwnedTokenIds.value = Array.from(new Set(ids))
-    if (nftOwnedTokenIds.value.length) {
-      nftTokenIdMode.value = 'list'
-      nftSelectedTokenId.value = nftOwnedTokenIds.value[0]
-    }
-  } catch (e) {
-    nftListError.value = t('bridge.nft.readFailed')
-  } finally {
-    isLoadingNftList.value = false
-  }
-}
 const pageIndex = ref(1)
 
 const isProcessing = ref(false)
 const minBridgeAmount = ref(0.001)
 const gasFeeEthStr = ref('')
-const coinChoose = ref({
-  img: "eth.svg",
-  name: "ETH",
-  minBridgeAmount: 0.1
-})
-
-const allCoinList = ref([
+let ws = "";
+const coinList = [
   {
     img: "eth.svg",
     name: "ETH",
@@ -726,10 +487,74 @@ const allCoinList = ref([
     minBridgeAmount: 0.1
   },
   {
-    img: "cp.svg",
-    name: "DOL",
+    img: "usdc.svg",
+    name: "USDC",
     minBridgeAmount: 0.1
   },
+  {
+    img: "dai.png",
+    name: "DAI",
+    minBridgeAmount: 0.1
+  },
+  {
+    img: "bnb.png",
+    name: "BNB",
+    minBridgeAmount: 0.1
+  },
+
+
+
+
+]
+
+const TOKEN_DECIMALS = {
+  ETH: 18,
+  USDT: 6,
+  USDC: 6,
+  DAI: 18,
+  WBTC: 8,
+  CP: 18,
+  BNB: 18
+};
+
+const coinChoose = ref({
+  img: "eth.svg",
+  name: "ETH",
+  minBridgeAmount: 0.1
+})
+
+const allCoinList = ref([
+  // {
+  //   img: "eth.svg",
+  //   name: "ETH",
+  //   minBridgeAmount: 0.1
+  // }, {
+  //   img: "usdt.png",
+  //   name: "USDT",
+  //   minBridgeAmount: 0.1
+  // },
+  // {
+  //   img: "usdol.png",
+  //   name: "USDC",
+  //   minBridgeAmount: 0.1
+  // },
+  // {
+  //   img: "usdc.svg",
+  //   name: "USDC",
+  //   minBridgeAmount: 0.1
+  // },
+  // {
+  //   img: "dai.png",
+  //   name: "DAI",
+  //   minBridgeAmount: 0.1
+  // },
+  // {
+  //   img: "bnb.png",
+  //   name: "BNB",
+  //   minBridgeAmount: 0.1
+  // },
+
+
 
 ])
 const txHash = ref('')
@@ -757,114 +582,54 @@ watch(amount, (newValue, oldValue) => {
   }
 })
 
-watch(
-  chain,
-  (newChain, oldChain) => {
-    if (newChain?.id !== oldChain?.id) {
-      console.log('网络已切换:', oldChain?.id, '->', newChain?.id)
-      // 网络切换后重新获取余额
-      if (address.value) {
-        initBridgeBalance()
-      }
-    }
-  },
-  { deep: true }
-)
 
-watch([bridgeMode, fromChain, toChain, address], async () => {
-  if (bridgeMode.value !== 'nft') return
-
-  // 自动填充接收地址
-  if (address.value && !nftToAddress.value) nftToAddress.value = address.value
-
-  // 尝试根据配置自动匹配 collection
-  const match = (nftCollections || [])
-    .flatMap(g => g.pairs || [])
-    .find(p => Number(p.fromChainId) === Number(fromChain.value.chainId) && Number(p.toChainId) === Number(toChain.value.chainId))
-  if (match) {
-    if (!nftLocalCollection.value || nftLocalCollection.value === '0x0000000000000000000000000000000000000000') nftLocalCollection.value = match.localCollection
-    if (!nftRemoteCollection.value || nftRemoteCollection.value === '0x0000000000000000000000000000000000000000') nftRemoteCollection.value = match.remoteCollection
-  }
-
-  // 读取 NFT 手续费（只有 DOL->其他链需要）
-  try {
-    isLoadingNftFee.value = true
-    const bridgeContractAddress = fromChain.value.bridgeContract
-    if (!bridgeContractAddress) {
-      nftFeeWei.value = 0n
-      return
-    }
-    const dolId = await readContract(config, {
-      address: bridgeContractAddress,
-      abi: bridgeABI,
-      functionName: 'dolChainId'
-    })
-    const needsFee = BigInt(fromChain.value.chainId) === BigInt(dolId) && BigInt(toChain.value.chainId) !== BigInt(dolId)
-    if (!needsFee) {
-      nftFeeWei.value = 0n
-      return
-    }
-    const fee = await readContract(config, {
-      address: bridgeContractAddress,
-      abi: bridgeABI,
-      functionName: 'nftBridgeBaseFeePerChain',
-      args: [BigInt(toChain.value.chainId)]
-    })
-    nftFeeWei.value = BigInt(fee || 0)
-  } catch (e) {
-    nftFeeWei.value = 0n
-  } finally {
-    isLoadingNftFee.value = false
-  }
-}, { immediate: true })
-
-watch([bridgeMode, nftLocalCollection, address, fromChain], async () => {
-  if (bridgeMode.value !== 'nft') return
-  // 自动刷新持仓列表（地址/链/collection 变化时）
-  await refreshOwnedNfts()
-}, { immediate: true })
-// 在 shortAddress 函数后添加
 // 在 shortAddress 函数后添加
 function validateAndCorrectAmount() {
   if (!amount.value) return
-  
+
   let value = amount.value.toString()
-  
+
   // 移除非数字字符（除了小数点）
   value = value.replace(/[^0-9.]/g, '')
-  
+
   // 确保只有一个小数点（保留第一个，移除后续的）
   const parts = value.split('.')
   if (parts.length > 2) {
     value = parts[0] + '.' + parts[1]
   }
-  
-  // 移除开头的多个零（但保留 0.xxx 格式）
-  if (value.startsWith('00')) {
-    value = value.replace(/^0+/, '0')
-  } else if (value.startsWith('0') && value.length > 1 && value[1] !== '.') {
-    value = value.substring(1)
+
+  // 修复：更精确的前导零处理
+  // 只处理类似 "000123" 或 "01" 这样的情况，但保留 "0.xxx" 格式
+  if (value.match(/^0+[1-9]/)) {
+    // 移除多余的前导零，但保留一个0（如果后面跟着小数点）
+    value = value.replace(/^0+/, '')
+  } else if (value.match(/^0{2,}$/)) {
+    // 多个零的情况，只保留一个
+    value = '0'
   }
-  
+
   // 限制小数位数为8位
   if (value.includes('.')) {
     const [integer, decimal] = value.split('.')
-    if (decimal.length > 8) {
+    if (decimal && decimal.length > 8) {
       value = integer + '.' + decimal.substring(0, 8)
     }
   }
-  
-  // 确保不是负数
-  const numValue = parseFloat(value)
-  if (numValue < 0) {
-    value = '0'
+
+  // 确保不是负数（这个检查实际上不需要，因为我们已经过滤了非数字字符）
+  if (value && !isNaN(parseFloat(value))) {
+    const numValue = parseFloat(value)
+    if (numValue < 0) {
+      value = '0'
+    }
   }
-  
+
   // 如果值发生了变化，更新 amount
   if (value !== amount.value) {
     amount.value = value
   }
 }
+
 function handleSubmitClick() {
   // 如果未连接钱包，则连接钱包
   if (!address.value) {
@@ -947,48 +712,48 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-// 接收实时推送 刷新列表
-async function Realtimerefresh() {
-  // bridge-indexer-ws-testnet.cpchain.com/ws
-  ws = new WebSocket("wss://bridge-indexer-ws-testnet.aqualink.com/ws");
+// 接收实时推送 刷新列表 -
+// async function Realtimerefresh() {
+//   // bridge-indexer-ws-testnet.cpchain.com/ws
+//   ws = new WebSocket("wss://bridge-indexer-ws-testnet.cpchain.com/ws");
 
-  ws.onopen = function (evt) {
-    console.log("Connection open ...");
-    // ws.send("Hello WebSockets!");
-  };
+//   ws.onopen = function (evt) {
+//     console.log("Connection open ...");
+//     // ws.send("Hello WebSockets!");
+//   };
 
-  ws.onmessage = async function (evt) {
-    // await sleep(500)
-    console.log("Received Message: " + evt.data);
-    let result = JSON.parse(evt.data)
-    console.log(result)
-    if (result.status == 0) {
-      await sleep(500)
-      ElMessage({
-        message: UI_MESSAGES.value.fundsArrived,
-        type: 'success',
-        duration: 3000,
-        showClose: true
-      })
+//   ws.onmessage = async function (evt) {
+//     // await sleep(500)
+//     console.log("Received Message: " + evt.data);
+//     let result = JSON.parse(evt.data)
+//     console.log(result)
+//     if (result.status == 0) {
+//       await sleep(500)
+//       ElMessage({
+//         message: UI_MESSAGES.value.fundsArrived,
+//         type: 'success',
+//         duration: 3000,
+//         showClose: true
+//       })
 
-      initBridgeBalance()
-    }
+//       initBridgeBalance()
+//     }
 
-    if (result.status == 1) {
-      await sleep(500)
+//     if (result.status == 1) {
+//       await sleep(500)
 
-      console.log(result)
-      initBridgeBalance()
-    }
+//       console.log(result)
+//       initBridgeBalance()
+//     }
 
-    // initBridgeBalance()
-    // ws.close();
-  };
+//     // initBridgeBalance()
+//     // ws.close();
+//   };
 
-  ws.onclose = function (evt) {
-    console.log("Connection closed.");
-  }
-}
+//   ws.onclose = function (evt) {
+//     console.log("Connection closed.");
+//   }
+// }
 
 function formatTimestamp(ts) {
   // 如果是10位秒级时间戳，先乘1000
@@ -1021,7 +786,7 @@ function showChain(state1) {
   showModal.value = true
   state.value = state1
   //  console.log(state)
-  chains.value = filteredNetworks.value
+  chains.value = networks
   search.value = ""
 }
 
@@ -1081,7 +846,7 @@ function fliterChain() {
   chains.value = arr
 
   if (search.value.toLowerCase().trim() === "") {
-    chains.value = filteredNetworks.value
+    chains.value = networks
   }
 }
 
@@ -1121,15 +886,17 @@ function initEthers(url, chainId) {
 }
 
 onMounted(() => {
- 
+  if (status.value == "connected") {
+    initBridgeBalance()
+  }
 })
 
 onUnmounted(() => {
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.close()
-    ws = ""
-    console.log('页面卸载，主动关闭 WebSocket')
-  }
+  // if (ws && ws.readyState === WebSocket.OPEN) {
+  //   ws.close()
+  //   ws = ""
+  //   console.log('页面卸载，主动关闭 WebSocket')
+  // }
 })
 
 watch(
@@ -1137,6 +904,7 @@ watch(
   (newStatus) => {
     if (newStatus === "connected" || newStatus === "disconnected") {
       initBridgeBalance()
+
     }
     if (newStatus === "disconnected") {
       amount.value = ''
@@ -1145,6 +913,7 @@ watch(
       records.value = []
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.close()
+        ws = ""
         console.log('页面卸载，主动关闭 WebSocket')
       }
     }
@@ -1152,23 +921,20 @@ watch(
 )
 
 async function getTokenBalance({ provider, address, chainInfo, tokenName }) {
-  const isDolphinet =
-    (chainInfo?.currency?.toUpperCase?.() === 'DOL') ||
-    chainInfo.chainId === 1519 ||
-    chainInfo.chainId === 1520;
+  const isCpChain = chainInfo.chainId === 1519;
   const token = tokenName.toUpperCase();
   const nativeToken = chainInfo.currency.toUpperCase();
 
   try {
-    // ✅ 情况 1：原生币（如 ETH、DOL），且不是 Dolphinet 链上的 ETH
-    if (token === nativeToken && !(isDolphinet && token === 'ETH')) {
+    // ✅ 情况 1：原生币（如 ETH、CP），且不是 CP 链上的 ETH
+    if (token === nativeToken && !(isCpChain && token === 'ETH')) {
       const balance = await provider.getBalance(address);
       console.log(`[原生币] ${token} - 余额:`, balance.toString());
       return parseFloat(ethers.formatUnits(balance, 18)).toFixed(6);
     }
 
-    // ✅ 情况 2：Dolphinet链上的 ETH，走 ethContract 查询
-    if (isDolphinet && token === 'ETH') {
+    // ✅ 情况 2：CP链上的 ETH，走 ethContract 查询
+    if (isCpChain && token === 'ETH') {
       console.log(chainInfo)
       const ethContract = chainInfo.ethContract;
       if (!ethContract) {
@@ -1193,7 +959,9 @@ async function getTokenBalance({ provider, address, chainInfo, tokenName }) {
     console.log(`[ERC20] ${token} 合约地址: ${erc20Addr}`);
     const contract = new ethers.Contract(erc20Addr, erc20ABI, provider);
     const balance = await contract.balanceOf(address);
-    return parseFloat(ethers.formatUnits(balance, 18)).toFixed(6);
+    const decimal = TOKEN_DECIMALS[token]
+    console.log(decimal)
+    return parseFloat(ethers.formatUnits(balance, decimal)).toFixed(6);
   } catch (err) {
     console.error(`[错误] 查询 ${token} 余额失败:`, err);
     return '0.000000';
@@ -1236,9 +1004,11 @@ async function initBridgeBalance() {
   }
 
   isLoadingBalance.value = false
-  getBridgeFees()
+  // getBridgeFees()
   getRecordsList()
-  Realtimerefresh()
+  // if (!ws) {
+  //   Realtimerefresh()
+  // }
 }
 
 const bridgeMethod = async () => {
@@ -1276,24 +1046,21 @@ const bridgeMethod = async () => {
   isProcessing.value = true
 
   try {
+
     // 6. 转换金额
-    const amountInWei = parseEther(amount.value.toString())
+    // const amountInWei = parseEther(amount.value.toString())
 
     // 7. 获取桥接合约地址
     const bridgeContractAddress = fromChain.value.bridgeContract
     if (!bridgeContractAddress) {
       throw new Error('桥接合约地址未配置')
     }
-    // 合约地址字段映射：DOL 使用 cpContract（而不是 dolContract）
-    const tokenNameUpper = coinChoose.value.name?.toUpperCase?.() || ''
-    const tokenKey =
-      tokenNameUpper === 'DOL' ? 'cpContract' :
-      tokenNameUpper === 'ETH'  ? 'ethContract' :
-      tokenNameUpper === 'USDT' ? 'usdtContract' :
-      (coinChoose.value.name.toLowerCase() + 'Contract')
-
-    const tokenAddress = fromChain.value[tokenKey]
-    const destTokenAddress = toChain.value[tokenKey]
+    const tokenSymbol = coinChoose.value.name.toLowerCase()
+    const tokenAddress = fromChain.value[tokenSymbol + 'Contract']
+    const destTokenAddress = toChain.value[tokenSymbol + 'Contract']
+    let token = coinChoose.value.name.toUpperCase()
+    let decimals = TOKEN_DECIMALS[token]
+    const amountInWei = parseUnits(amount.value.toString(), decimals);
 
     // 8. 调用桥接核心函数（使用新的动态解析逻辑）
     const result = await bridgeMethodOptimized({
@@ -1373,12 +1140,15 @@ async function getBridgeFees() {
 
 async function getRecordsList() {
   if (!address.value) return
+
   var result = await getBridgeRecords(
     pageNumber.value,
     pageSize.value,
     "desc",
-    address.value
+    address.value,
+    0
   )
+  console.log("----------------------------------------")
   records.value = result.data.Records
   Total.value = result.data.Total
   pageNumber.value = result.data.Current
@@ -1417,181 +1187,11 @@ function select2(val) {
   showModal2.value = false
   initBridgeBalance()
 }
-
-async function handleSubmitNft() {
-  if (!address.value) {
-    isLogin.value = true
-    return
-  }
-  try {
-    const bridgeContractAddress = fromChain.value.bridgeContract
-    if (!bridgeContractAddress) throw new Error('bridgeContract not configured')
-
-    // 切换网络到 fromChain
-    if (chain.value?.id !== fromChain.value.chainId) {
-      await switchToNetwork(fromChain.value.chainId)
-      await new Promise(resolve => setTimeout(resolve, 500))
-    }
-
-    await bridgeNftOptimized({
-      localCollection: nftLocalCollection.value,
-      remoteCollection: nftRemoteCollection.value,
-      tokenId: effectiveNftTokenId.value,
-      userAddress: address.value,
-      bridgeContractAddress,
-      fromChainId: fromChain.value.chainId,
-      targetChainId: toChain.value.chainId,
-      toAddress: nftToAddress.value,
-      BRIDGE_MESSAGES: BRIDGE_MESSAGES.value
-    })
-  } catch (e) {
-    console.error(e)
-  }
-}
 </script>
 
 
 <style lang="scss" scoped>
 .bridge {
-  .bridge-mode-tabs {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    margin-bottom: 12px;
-
-    .mode-btn {
-      height: 36px;
-      padding: 0 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(0, 119, 190, 0.18);
-      background: rgba(255, 255, 255, 0.9);
-      color: #1E293B;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-
-      &.active {
-        border-color: rgba(0, 119, 190, 0.35);
-        background: linear-gradient(135deg, rgba(0, 119, 190, 0.12) 0%, rgba(0, 180, 216, 0.10) 100%);
-        color: #0077BE;
-      }
-    }
-  }
-
-  .nft-card {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 119, 190, 0.15);
-    border-radius: 20px;
-    box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
-    padding: 16px;
-    width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 16px;
-
-    .nft-row {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 12px;
-
-      .nft-label {
-        color: #64748B;
-        font-size: 12px;
-        font-weight: 500;
-      }
-
-      .nft-input {
-        height: 36px;
-        border-radius: 12px;
-        border: 1px solid rgba(0, 119, 190, 0.15);
-        padding: 0 12px;
-        outline: none;
-        background: rgba(255, 255, 255, 0.9);
-        color: #1E293B;
-        font-size: 14px;
-        flex: 1;
-
-        &::placeholder {
-          color: #94A3B8;
-        }
-      }
-    }
-
-    .nft-tokenid-line {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .nft-tokenid-actions {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-      flex-shrink: 0;
-    }
-
-    .nft-mini-btn {
-      height: 26px;
-      padding: 0 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(0, 119, 190, 0.18);
-      background: rgba(255, 255, 255, 0.9);
-      color: #0077BE;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      user-select: none;
-      -webkit-appearance: none;
-      appearance: none;
-    }
-
-    .nft-mini-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .nft-select {
-      height: 36px;
-      border-radius: 12px;
-      border: 1px solid rgba(0, 119, 190, 0.15);
-      padding: 0 12px;
-      outline: none;
-      background: rgba(255, 255, 255, 0.9);
-      color: #1E293B;
-      font-size: 14px;
-      -webkit-appearance: none;
-      appearance: none;
-      flex: 1;
-    }
-
-    .nft-hint {
-      color: #64748B;
-      font-size: 12px;
-      line-height: 1.3;
-
-      &.error {
-        color: #EF4444;
-      }
-    }
-
-    .nft-fee {
-      color: #64748B;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-
-      img {
-        width: 18px;
-        animation: rotate 5s linear infinite;
-      }
-
-      span {
-        color: #1E293B;
-        font-weight: 500;
-      }
-    }
-  }
   .error-message {
     color: #ff4757;
     font-size: 12px;
@@ -1599,44 +1199,16 @@ async function handleSubmitNft() {
 
   }
 
-  background: linear-gradient(135deg, #F0F8FF 0%, #E0F2FE 30%, #B8E6FF 50%, #E0F2FE 70%, #F0F8FF 100%);
-  background-size: 200% 200%;
-  animation: gradientShift 15s ease infinite;
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-      radial-gradient(circle at 20% 30%, rgba(0, 183, 216, 0.08) 0%, transparent 60%),
-      radial-gradient(circle at 80% 70%, rgba(0, 119, 190, 0.08) 0%, transparent 60%),
-      radial-gradient(circle at 50% 50%, rgba(74, 158, 255, 0.05) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  
-  @keyframes gradientShift {
-    0%, 100% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-  }
+  background: #121212 url("../../assets/faucet_bg.png") no-repeat;
+  background-size: 100% 100%;
   width: 100vw;
   overflow-x: hidden;
   min-height: 100vh;
-  min-height: -webkit-fill-available; /* iOS Safari */
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   align-items: center;
   padding: 80px 0;
-  padding-top: max(80px, env(safe-area-inset-top));
-  padding-bottom: max(80px, env(safe-area-inset-bottom));
 
   button:disabled {
     cursor: not-allowed
@@ -1669,7 +1241,7 @@ async function handleSubmitNft() {
 
   :deep(.el-pager li.is-active) {
     border-radius: 8px;
-    background: linear-gradient(135deg, #0077BE 0%, #00B4D8 100%);
+    background: #00CE7A;
     color: #1A1E1D;
     text-align: center;
 
@@ -1716,46 +1288,16 @@ async function handleSubmitNft() {
     height: 550px;
     margin: 0 auto;
     width: 100%;
-    position: relative;
-    z-index: 1;
 
     h1 {
       color: #FFF;
       text-align: center;
+
       font-size: 40px;
       font-style: normal;
       font-weight: 600;
       line-height: normal;
       margin-bottom: 32px;
-      font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      
-      .title-part1 {
-        font-size: 28px;
-        font-weight: 500;
-        background: linear-gradient(135deg, #0077BE 0%, #00B4D8 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        color: #1E293B;
-        letter-spacing: -0.5px;
-      }
-      
-      .title-part2 {
-        font-size: 56px;
-        font-weight: 700;
-        font-family: 'Cormorant Garamond', 'Playfair Display', 'Cinzel', serif;
-        background: linear-gradient(135deg, #0077BE 0%, #00B4D8 50%, #4A9EFF 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        letter-spacing: 1.5px;
-        font-style: italic;
-        text-transform: capitalize;
-      }
     }
 
     .content {
@@ -1763,10 +1305,7 @@ async function handleSubmitNft() {
       max-width: 480px;
       // height: 450px;
       border-radius: 24px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      box-shadow: 0 8px 32px rgba(0, 119, 190, 0.08), 0 2px 8px rgba(0, 119, 190, 0.04);
-      border: 1px solid rgba(0, 119, 190, 0.1);
+      background: #1E1E1E;
 
       .item {
         position: relative;
@@ -1777,9 +1316,8 @@ async function handleSubmitNft() {
           cursor: pointer;
           width: 32px;
           height: 32px;
-          background: rgba(255, 255, 255, 0.9);
-          border: 1.6px solid rgba(0, 119, 190, 0.2);
-          box-shadow: 0 2px 8px rgba(0, 119, 190, 0.1);
+          background: #1E1E1E;
+          border: 1.6px solid #2E2F32;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -1796,7 +1334,7 @@ async function handleSubmitNft() {
         }
 
         .arrow {
-          color: #0077BE;
+          color: #00CE7A;
           font-size: 14px;
           font-weight: 700;
           display: inline-block;
@@ -1822,24 +1360,17 @@ async function handleSubmitNft() {
         .chain-card {
           cursor: pointer;
           // flex: 1 1 0%;
-          background: rgba(255, 255, 255, 0.95);
+          background: #1E1E1E;
           border-radius: 20px;
           padding: 16px;
           display: flex;
           align-items: center;
           gap: 8px;
           height: 72px;
-          border: 1px solid rgba(0, 119, 190, 0.15);
-          box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
-          transition: all 0.4s ease;
+          border: 1px solid #2E2F32;
           box-sizing: border-box;
           min-width: 0;
-          
-          &:hover {
-            border-color: rgba(0, 119, 190, 0.22);
-            box-shadow: 0 3px 10px rgba(0, 119, 190, 0.08);
-            transform: translateY(-1px);
-          }
+          transition: box-shadow 0.2s;
 
           img {
             width: 40px;
@@ -1867,7 +1398,7 @@ async function handleSubmitNft() {
           }
 
           .label {
-            color: #64748B;
+            color: #8E8E92;
             // text-align: center;
 
             font-size: 14px;
@@ -1877,7 +1408,7 @@ async function handleSubmitNft() {
           }
 
           .name {
-            color: #1E293B;
+            color: var(---, #FFF);
 
             font-size: 14px;
             font-style: normal;
@@ -1888,10 +1419,9 @@ async function handleSubmitNft() {
       }
 
       .amount-card {
-        background: rgba(255, 255, 255, 0.95);
-        border: 1px solid rgba(0, 119, 190, 0.15);
+        background: #1E1E1E;
+        border: 1px solid #2E2F32;
         border-radius: 20px;
-        box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
@@ -1909,7 +1439,7 @@ async function handleSubmitNft() {
           flex: 1;
 
           .amount-value {
-            color: #1E293B;
+            color: #FFF;
 
             font-size: 32px;
             font-style: normal;
@@ -1925,7 +1455,7 @@ async function handleSubmitNft() {
             input[type="number"] {
               -moz-appearance: textfield;
               /* 可选：再加上自己需要的样式 */
-              appearance: textfield;
+              /* appearance: textfield; */
               /* 新标准也支持，但兼容性有限 */
             }
 
@@ -1933,7 +1463,7 @@ async function handleSubmitNft() {
               border: 0;
               outline: none;
               background: transparent;
-              color: #1E293B;
+              color: #FFF;
               width: 200px;
               // text-align: center;
               // font-family: "TT Hoves Pro Trial";
@@ -1945,7 +1475,7 @@ async function handleSubmitNft() {
           }
 
           .amount-usd {
-            color: #1E293B;
+            color: #FFF;
 
             font-size: 12px;
             font-style: normal;
@@ -1970,10 +1500,8 @@ async function handleSubmitNft() {
             border-radius: 100px;
             border: 1px solid #2E2F32;
 
-            background: rgba(255, 255, 255, 0.95);
+            background: #151517;
             border-radius: 24px;
-            border: 1px solid rgba(0, 119, 190, 0.15);
-            box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
             padding: 8px 12px;
             min-width: 72px;
             // height: 44px;
@@ -1992,7 +1520,7 @@ async function handleSubmitNft() {
             }
 
             span {
-              color: #1E293B;
+              color: #FFF;
               text-align: center;
 
               font-size: 12px;
@@ -2012,7 +1540,7 @@ async function handleSubmitNft() {
 
           .amount-avail {
 
-            color: #64748B;
+            color: #8E8E92;
             display: flex;
             align-items: center;
             justify-content: space-around;
@@ -2027,7 +1555,7 @@ async function handleSubmitNft() {
             }
 
             span {
-              color: #1E293B;
+              color: #FFF;
 
               font-size: 12px;
               font-style: normal;
@@ -2039,10 +1567,9 @@ async function handleSubmitNft() {
       }
 
       .summary-card {
-        background: rgba(255, 255, 255, 0.95);
-        border: 1px solid rgba(0, 119, 190, 0.15);
+        background: #1E1E1E;
+        border: 1px solid #2E2F32;
         border-radius: 20px;
-        box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
         padding: 16px;
         width: 100%;
         box-sizing: border-box;
@@ -2071,7 +1598,7 @@ async function handleSubmitNft() {
             justify-content: center;
 
             .summary-amt {
-              color: #1E293B;
+              color: #FFF;
 
               font-size: 24px;
               font-style: normal;
@@ -2080,7 +1607,7 @@ async function handleSubmitNft() {
             }
 
             .summary-usd {
-              color: #1E293B;
+              color: #FFF;
 
               font-size: 12px;
               font-style: normal;
@@ -2098,7 +1625,7 @@ async function handleSubmitNft() {
 
           .summary-fee {
             display: flex;
-            color: #64748B;
+            color: #8E8E92;
 
             font-size: 12px;
             font-style: normal;
@@ -2106,7 +1633,7 @@ async function handleSubmitNft() {
             line-height: normal;
 
             span {
-              color: #64748B;
+              color: #8E8E92;
             }
 
             ;
@@ -2118,7 +1645,7 @@ async function handleSubmitNft() {
           }
 
           .summary-time {
-            color: #64748B;
+            color: #8E8E92;
 
             font-size: 12px;
             font-style: normal;
@@ -2141,44 +1668,25 @@ async function handleSubmitNft() {
         height: 48px;
         border: none;
         outline: none;
-        background: linear-gradient(135deg, #0077BE 0%, #00B4D8 100%);
+        background: #00CE7A;
         border-radius: 999px;
-        box-shadow: 0 4px 16px rgba(0, 119, 190, 0.3);
         font-size: 16px;
         font-style: normal;
         font-weight: 500;
         color: #1A1E1D;
         cursor: pointer;
         // margin-top: 16px;
-        transition: all 0.3s ease;
+        transition: background 0.18s, filter 0.18s;
 
         &:hover,
         &:active {
-          background: linear-gradient(135deg, #006BA3 0%, #00A0C8 100%);
-          box-shadow: 0 5px 18px rgba(0, 119, 190, 0.25);
-          transform: translateY(-0.5px);
-        }
-        
-        // connect wallet 文字颜色
-        span:first-child {
-          color: #FFFFFF !important;
+          background: #00c864;
+          filter: brightness(0.98);
         }
       }
 
       .submit-btn:disabled {
-        cursor: not-allowed;
-        background: rgba(148, 163, 184, 0.2) !important;
-        color: #94A3B8 !important;
-        box-shadow: none !important;
-        opacity: 0.7;
-        transform: none !important;
-        
-        &:hover,
-        &:active {
-          background: rgba(148, 163, 184, 0.2) !important;
-          box-shadow: none !important;
-          transform: none !important;
-        }
+        cursor: not-allowed
       }
 
     }
@@ -2188,140 +1696,76 @@ async function handleSubmitNft() {
   .recordList {
     width: 100%;
     padding: 0 120px;
-    margin-top: 40px;
 
     .records-title {
-      color: #1a1a1a;
+      color: #FFF;
+
       font-size: 24px;
       font-style: normal;
       font-weight: 500;
       line-height: normal;
-      margin-bottom: 24px;
     }
 
     table {
       width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0, 119, 190, 0.08), 0 2px 8px rgba(0, 119, 190, 0.04);
-      border: 1px solid rgba(0, 119, 190, 0.1);
+
 
       thead {
-        background: rgba(0, 119, 190, 0.05);
-        
         th {
-          color: #64748B;
+          color: var(---, #8E8E92);
+
           font-size: 12px;
           font-style: normal;
-          font-weight: 500;
+          font-weight: 400;
           line-height: normal;
-          height: 48px;
+          height: 40px;
           text-align: left;
-          padding: 0 16px;
-          border-bottom: 1px solid rgba(0, 119, 190, 0.1);
-          
-          &:first-child {
-            padding-left: 24px;
-          }
-          
-          &:last-child {
-            padding-right: 24px;
-          }
         }
       }
 
       tbody {
         tr {
+
           height: 64px;
-          transition: background-color 0.2s ease;
-          
-          &:hover {
-            background-color: rgba(0, 119, 190, 0.03);
-          }
 
           td {
-            color: #1E293B;
+
+            color: #fff;
             font-size: 14px;
             font-style: normal;
             font-weight: 500;
             line-height: normal;
-            padding: 0 16px;
-            border-bottom: 1px solid rgba(0, 119, 190, 0.05);
-            
-            &:first-child {
-              padding-left: 24px;
-            }
-            
-            &:last-child {
-              padding-right: 24px;
-            }
 
             .status {
               font-weight: 500;
 
               &.success {
-                color: #0077BE;
+                color: #00CE7A;
               }
 
               &.fail {
                 color: #f4575e;
               }
             }
-          }
-          
-          &:last-child td {
-            border-bottom: none;
+
           }
 
-          .goScan {
-            color: #0077BE;
-            transition: color 0.2s ease;
+          .goScan:hover {
             cursor: pointer;
-            
-            &:hover {
-              color: #005A8F;
-              text-decoration: underline;
-            }
+            color: #00c864;
           }
         }
 
         .alt {
-          background: rgba(240, 248, 255, 0.3);
+          background: #1E1E1E;
         }
+
+
       }
     }
 
     ul {
       display: none;
-    }
-  }
-
-  /* iPhone specific optimizations */
-  @media (max-width: 430px) {
-    .bridge {
-      padding: 60px 0;
-      padding-top: max(60px, env(safe-area-inset-top));
-      padding-bottom: max(60px, env(safe-area-inset-bottom));
-    }
-  }
-
-  @media (max-width: 390px) {
-    .bridge {
-      padding: 50px 0;
-      padding-top: max(50px, env(safe-area-inset-top));
-      padding-bottom: max(50px, env(safe-area-inset-bottom));
-    }
-  }
-
-  @media (max-width: 375px) {
-    .bridge {
-      padding: 40px 0;
-      padding-top: max(40px, env(safe-area-inset-top));
-      padding-bottom: max(40px, env(safe-area-inset-bottom));
     }
   }
 
@@ -2331,7 +1775,7 @@ async function handleSubmitNft() {
       padding: 0 15px;
 
       .records-title {
-        color: #1a1a1a;
+        color: #FFF;
 
         font-size: 18px;
         font-style: normal;
@@ -2348,41 +1792,31 @@ async function handleSubmitNft() {
       ul {
         display: block;
         list-style: none;
-        margin-top: 24px;
-        padding: 0;
+        margin-top: 40px;
 
         li {
           margin-bottom: 16px;
-          padding: 20px;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
-          border-radius: 16px;
-          box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
-          border: 1px solid rgba(0, 119, 190, 0.1);
-          transition: all 0.3s ease;
 
-          &:hover {
-            box-shadow: 0 4px 12px rgba(0, 119, 190, 0.1);
-            transform: translateY(-1px);
-          }
+          border-bottom: 0.5px solid #2E2F32;
 
           .item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            min-height: 24px;
-            margin-bottom: 12px;
+            height: 17px;
+            margin-bottom: 8px;
 
             .name {
-              color: #1E293B;
-              font-size: 16px;
+              color: #F3F5F6;
+
+              font-size: 15px;
               font-style: normal;
-              font-weight: 600;
+              font-weight: 500;
               line-height: normal;
             }
 
             .see {
-              color: #64748B;
+              color: #8E8E92;
 
               font-size: 12px;
               font-style: normal;
@@ -2391,7 +1825,7 @@ async function handleSubmitNft() {
             }
 
             .sendName {
-              color: #64748B;
+              color: #8E8E92;
 
               font-size: 12px;
               font-style: normal;
@@ -2400,7 +1834,7 @@ async function handleSubmitNft() {
             }
 
             .time {
-              color: #64748B;
+              color: #8E8E92;
 
               font-size: 12px;
               font-style: normal;
@@ -2409,7 +1843,7 @@ async function handleSubmitNft() {
             }
 
             .receiveName {
-              color: #64748B;
+              color: #8E8E92;
 
               font-size: 12px;
               font-style: normal;
@@ -2418,7 +1852,7 @@ async function handleSubmitNft() {
             }
 
             .statues {
-              color: #64748B;
+              color: #8E8E92;
 
               font-size: 12px;
               font-style: normal;
@@ -2431,7 +1865,7 @@ async function handleSubmitNft() {
               font-size: 12px;
 
               &.success {
-                color: #0077BE;
+                color: #00CE7A;
               }
 
               &.fail {
@@ -2441,14 +1875,8 @@ async function handleSubmitNft() {
           }
 
           .item:first-child {
-            min-height: 28px;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid rgba(0, 119, 190, 0.1);
-          }
-          
-          .item:last-child {
-            margin-bottom: 0;
+            height: 21px;
+            margin-bottom: 12px;
           }
         }
       }
@@ -2480,18 +1908,15 @@ async function handleSubmitNft() {
 
   $text-main: #fff;
   $text-secondary: #8E8E92;
-  $primary: #0077BE;
-  $primary-hover: #005A8F;
+  $primary: #00CE7A;
+  $primary-hover: #00c864;
 
   .confirm-modal {
     max-width: 420px;
     width: calc(100% - 48px);
     // margin: 100px auto 0;
-    background: rgba(255, 255, 255, 0.98);
+    background: #151517;
     border-radius: $modal-radius;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 12px 40px rgba(0, 119, 190, 0.15), 0 4px 12px rgba(0, 119, 190, 0.08);
-    border: 1px solid rgba(0, 119, 190, 0.1);
     box-shadow: 0 12px 32px #000a;
     padding: 24px;
     //  display: flex;
@@ -2511,12 +1936,12 @@ async function handleSubmitNft() {
         font-style: normal;
         font-weight: 500;
         line-height: normal;
-        color: #1a1a1a;
+        color: #fff;
       }
 
       .close-btn {
         font-size: 22px;
-        color: #1a1a1a;
+        color: #fff;
 
         cursor: pointer;
         transition: color .18s;
@@ -2528,10 +1953,9 @@ async function handleSubmitNft() {
     }
 
     .modal-block {
-      background: rgba(255, 255, 255, 0.95);
+      background: #151517;
       border-radius: 20px;
-      border: 1px solid rgba(0, 119, 190, 0.15);
-      box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
+      border: 1px solid #2E2F32;
       padding: 16px;
       display: flex;
       flex-direction: column;
@@ -2556,7 +1980,7 @@ async function handleSubmitNft() {
           }
 
           .block-label {
-            color: #1E293B;
+            color: #FFF;
 
             font-size: 12px;
             font-style: normal;
@@ -2566,7 +1990,7 @@ async function handleSubmitNft() {
         }
 
         .block-addr {
-          color: #1a1a1a;
+          color: #FFF;
           text-align: center;
 
           font-size: 12px;
@@ -2575,8 +1999,7 @@ async function handleSubmitNft() {
           line-height: normal;
           border-radius: 100px;
 
-          background: rgba(0, 119, 190, 0.08);
-          border: 1px solid rgba(0, 119, 190, 0.15);
+          background: #000;
           display: inline-block;
           padding: 2px 10px;
         }
@@ -2591,17 +2014,18 @@ async function handleSubmitNft() {
         .amount-icon {
           width: 32px;
           height: 32px;
+          border-radius: 50%;
         }
 
-          .amount-value {
-            color: #1E293B;
-            text-align: center;
+        .amount-value {
+          color: #FFF;
+          text-align: center;
 
-            font-size: 24px;
-            font-style: normal;
-            font-weight: 600;
-            line-height: normal;
-          }
+          font-size: 24px;
+          font-style: normal;
+          font-weight: 600;
+          line-height: normal;
+        }
       }
     }
 
@@ -2629,7 +2053,7 @@ async function handleSubmitNft() {
         }
 
         .info-label {
-          color: #1a1a1a;
+          color: #FFF;
 
           font-size: 12px;
           font-style: normal;
@@ -2638,7 +2062,7 @@ async function handleSubmitNft() {
         }
 
         .info-value {
-          color: #1a1a1a;
+          color: #FFF;
 
           font-size: 12px;
           font-style: normal;
@@ -2711,11 +2135,8 @@ async function handleSubmitNft() {
     max-width: 390px;
     width: 100%;
     height: auto;
-    background: rgba(255, 255, 255, 0.98);
+    background: #151517;
     border-radius: 16px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 8px 32px rgba(0, 119, 190, 0.15), 0 2px 8px rgba(0, 119, 190, 0.08);
-    border: 1px solid rgba(0, 119, 190, 0.1);
     padding: 24px;
     box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.35);
     animation: showModal .2s;
@@ -2731,17 +2152,17 @@ async function handleSubmitNft() {
       justify-content: space-between;
       font-size: 20px;
       font-weight: bold;
-      color: #1a1a1a;
+      color: #fff;
       margin-bottom: 24px;
 
-        span {
-          color: #1a1a1a;
+      span {
+        color: #fff;
 
-          font-size: 20px;
-          font-style: normal;
-          font-weight: 600;
-          line-height: normal;
-        }
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+      }
 
       // padding: 0 32px 8px 32px;
 
@@ -2752,7 +2173,7 @@ async function handleSubmitNft() {
         transition: color 0.15s;
 
         &:hover {
-          color: #0077BE;
+          color: #ccc;
         }
       }
     }
@@ -2765,14 +2186,13 @@ async function handleSubmitNft() {
         flex: 1;
         border: none;
         outline: none;
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid rgba(0, 168, 255, 0.2);
+        background: #252629;
         border-radius: 100px;
         height: 38px;
         padding: 0 14px;
         font-size: 15px;
 
-        color: #1a1a1a;
+        color: #fff;
 
         font-size: 14px;
         font-style: normal;
@@ -2780,7 +2200,8 @@ async function handleSubmitNft() {
         line-height: normal;
 
         &::placeholder {
-          color: #94A3B8;
+          color: #666868;
+          ;
         }
       }
     }
@@ -2800,8 +2221,8 @@ async function handleSubmitNft() {
         border-radius: 14px;
         padding: 0 16px;
         transition: background .13s;
-        color: #1E293B;
-        color: #1E293B;
+        color: #fff;
+        color: var(---, #FFF);
 
 
 
@@ -2818,20 +2239,20 @@ async function handleSubmitNft() {
           font-size: 14px;
           font-style: normal;
           font-weight: 500;
-          color: #1E293B;
+          color: #fff;
           line-height: normal;
 
         }
 
         .check-mark {
-          color: #0077BE;
+          color: #00e782;
           font-size: 22px;
           font-weight: bold;
         }
 
         &:hover,
         &.active {
-          background: rgba(0, 119, 190, 0.04);
+          // background: #23242b;
         }
       }
     }
@@ -2851,208 +2272,362 @@ async function handleSubmitNft() {
 
   @media (max-width: 768px) {
 
-    .confirm-modal {
-      position: relative;
-      width: 100%;
-      max-width: 100%;
-      margin: 0;
-      padding: 24px;
-      animation: showModal 0.25s ease;
-      transform: none;
-      left: auto;
-      bottom: auto;
-      border-radius: 20px;
-
-      .modal-header {
-        margin-bottom: 20px;
-      }
-    }
-
     @keyframes showModal {
       from {
-        transform: scale(0.92);
+        transform: translateY(100%) scale(0.92);
         opacity: 0;
       }
 
       to {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    @keyframes showModalCentered {
-      from {
-        transform: translate(-50%, 0) scale(0.92);
-        opacity: 0;
-      }
-
-      to {
-        transform: translate(-50%, 0) scale(1);
+        transform: translateY(0) scale(1);
         opacity: 1;
       }
     }
 
     .chain-select-content {
-      position: fixed;
-      left: 50%;
-      top: max(12vh, env(safe-area-inset-top) + 32px);
-      transform: translate(-50%, 0);
-      width: 92vw;
-      height: auto;
-      max-height: 80vh;
-      padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
-      animation: showModalCentered 0.25s ease;
-      display: flex;
-      flex-direction: column;
-      bottom: auto;
-      box-sizing: border-box;
+      position: absolute;
+      bottom: 0;
+      width: 90vw;
+      padding: 15px;
 
       .header {
         font-size: 18px;
       }
-      
-      .search-box {
-        flex-shrink: 0;
-      }
-
-      .chain-list {
-        flex: 1;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 20px;
-        
-        .chain-item {
-          min-height: 56px;
-        }
-      }
     }
 
     .swap-container {
+
+
       max-width: 480px;
-      height: auto;
-      min-height: auto;
+      height: 550px;
       margin: 0 auto;
       width: 100%;
-      padding: 0 16px;
-      padding-left: max(16px, env(safe-area-inset-left));
-      padding-right: max(16px, env(safe-area-inset-right));
+      padding: 0 15px;
 
       h1 {
-        margin-bottom: 20px;
-        gap: 0;
-        
-          .title-part1 {
-          font-size: 16px;
-          letter-spacing: -0.2px;
-          margin-bottom: 2px;
-        }
-        
-        .title-part2 {
-          font-size: 32px;
-          letter-spacing: 0.5px;
-          line-height: 1.1;
-        }
+        color: #FFF;
+        text-align: center;
+
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        margin-bottom: 24px;
       }
 
       .content {
         padding: 16px;
-        padding-left: max(16px, env(safe-area-inset-left));
-        padding-right: max(16px, env(safe-area-inset-right));
-        border-radius: 20px;
+        max-width: 480px;
+        // height: 450px;
+        border-radius: 24px;
+        background: #1E1E1E;
 
         .item {
-          margin-bottom: 12px;
+          position: relative;
+          margin-bottom: 16px;
+          justify-content: space-between;
 
           .arrow-wrap {
-            width: 36px;
-            height: 36px;
-            min-width: 36px;
-            min-height: 36px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            background: #1E1E1E;
+            border: 1.6px solid #2E2F32;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            // margin: 0 -19px; // 向两侧溢出半径
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            //    transform: translateY(-50%);
+            z-index: 2;
+            box-shadow: 0 1px 8px #0002 inset;
+
           }
 
+          .arrow {
+            color: #00CE7A;
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-block;
+            transform: translateY(-1px);
+          }
+
+          display: flex;
+          // justify-content: space-around;
+
           .chain-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            position: relative;
+            z-index: 1;
             margin-bottom: 8px;
           }
 
           .chain-card {
-            padding: 12px;
-            min-height: 64px;
-            height: 64px;
-            border-radius: 16px;
+            cursor: pointer;
+            // flex: 1 1 0%;
+            background: #1E1E1E;
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 72px;
+            border: 1px solid #2E2F32;
+            box-sizing: border-box;
+            min-width: 0;
+            transition: box-shadow 0.2s;
+
+            img {
+              width: 30px;
+              display: block;
+            }
+
+            &.left {
+              width: calc(50% - 5px);
+              // margin-right: 34px;
+              justify-content: flex-start;
+            }
+
+            &.right {
+              width: calc(50% - 5px);
+              justify-content: flex-end;
+            }
 
             .icon {
-              width: 32px;
-              height: 32px;
+              width: 38px;
+              height: 38px;
+              border-radius: 50%;
+              object-fit: contain;
+              background: #191b20;
+              box-shadow: 0 1px 6px #15151522 inset;
             }
 
             .label {
-              font-size: 12px;
+              color: #8E8E92;
+              // text-align: center;
+
+              font-size: 14px;
+              font-style: normal;
+              font-weight: 500;
+              line-height: normal;
             }
 
             .name {
-              font-size: 13px;
+              color: var(---, #FFF);
+
+              font-size: 12px;
+              font-style: normal;
+              font-weight: 500;
+              line-height: normal;
             }
           }
         }
 
         .amount-card {
-          padding: 14px;
-          margin-bottom: 12px;
-          height: auto;
-          flex-direction: column;
+          background: #1E1E1E;
+          border: 1px solid #2E2F32;
+          border-radius: 20px;
+          display: flex;
           align-items: flex-start;
-          gap: 12px;
+          justify-content: space-between;
+          padding: 16px;
+          margin-bottom: 16px;
+          width: 100%;
+          box-sizing: border-box;
+          height: 99px;
+          position: relative;
 
           .amount-main {
-            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            flex: 1;
 
             .amount-value {
-              input {
-                font-size: 28px;
-                width: 100%;
+              color: #FFF;
+
+              font-size: 32px;
+              font-style: normal;
+              font-weight: 600;
+              line-height: normal;
+
+              input[type="number"]::-webkit-outer-spin-button,
+              input[type="number"]::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
               }
+
+              input[type="number"] {
+                -moz-appearance: textfield;
+                /* 可选：再加上自己需要的样式 */
+                /* appearance: textfield; */
+                /* 新标准也支持，但兼容性有限 */
+              }
+
+              input {
+                border: 0;
+                outline: none;
+                background: transparent;
+                color: #FFF;
+                width: 100%;
+                // text-align: center;
+                // font-family: "TT Hoves Pro Trial";
+                font-size: 20px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: normal;
+              }
+            }
+
+            .amount-usd {
+              color: #FFF;
+
+              font-size: 12px;
+              font-style: normal;
+              font-weight: 400;
+              line-height: normal;
+              // margin-top: 5px;
             }
           }
 
           .amount-side {
-            width: 100%;
-            flex-direction: row;
-            align-items: center;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
             justify-content: space-between;
-            height: auto;
-            min-width: 0;
+            height: 100%;
+            min-width: 150px;
 
             .token-selector {
-              order: 2;
-              margin: 0;
-              padding: 6px 12px;
-              min-width: auto;
+              display: flex;
+              align-items: center;
+              cursor: pointer;
+              border-radius: 100px;
+              border: 1px solid #2E2F32;
+
+              background: #151517;
+              border-radius: 24px;
+              padding: 8px 12px;
+              min-width: 72px;
+              // height: 44px;
+              font-size: 1.12rem;
+              color: #fff;
+              font-weight: 600;
+              // margin-bottom: 30px;
+              gap: 4px;
+
+              .token-icon {
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background: #11df72;
+                margin-right: 6px;
+              }
+
+              span {
+                color: #FFF;
+                text-align: center;
+
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+              }
+
+              .arrow {
+                margin-left: 8px;
+                margin-top: 2px;
+                width: 16px;
+                height: 16px;
+                display: inline-block;
+              }
             }
 
             .amount-avail {
-              order: 1;
-              justify-content: flex-start;
+
+              color: #8E8E92;
+              display: flex;
+              align-items: center;
+              justify-content: space-around;
+              font-size: 12px;
+              font-style: normal;
+              font-weight: 400;
+              line-height: normal;
+
+              img {
+                width: 20px;
+                animation: rotate 5s linear infinite;
+              }
+
+              span {
+                color: #FFF;
+
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+              }
             }
           }
         }
 
         .summary-card {
-          padding: 14px;
-          height: auto;
+          background: #1E1E1E;
+          border: 1px solid #2E2F32;
+          border-radius: 20px;
+          padding: 16px;
+          width: 100%;
+          box-sizing: border-box;
+          height: 107px;
           margin-bottom: 16px;
-          gap: 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
 
           .summary-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
             .summary-icon {
-              width: 28px;
-              height: 28px;
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+
+              object-fit: cover;
             }
 
             .summary-info {
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+
               .summary-amt {
-                 font-size: 18px;
+                color: #FFF;
+
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: normal;
+              }
+
+              .summary-usd {
+                color: #FFF;
+
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
               }
             }
           }
@@ -3061,16 +2636,22 @@ async function handleSubmitNft() {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            // margin-top: 10px;
 
             .summary-fee {
               display: flex;
-              color: #64748B;
+              color: #8E8E92;
+
               font-size: 11px;
+              font-style: normal;
               font-weight: 400;
+              line-height: normal;
 
               span {
-                color: #64748B;
+                color: #8E8E92;
               }
+
+              ;
 
               img {
                 width: 20px;
@@ -3079,9 +2660,12 @@ async function handleSubmitNft() {
             }
 
             .summary-time {
-              color: #64748B;
+              color: #8E8E92;
+
               font-size: 11px;
+              font-style: normal;
               font-weight: 400;
+              line-height: normal;
 
               .clock {
                 vertical-align: middle;
@@ -3094,57 +2678,32 @@ async function handleSubmitNft() {
 
         .submit-btn {
           width: 100%;
+          // padding: 20px  0;
           display: block;
-          min-height: 48px;
           height: 48px;
           border: none;
           outline: none;
-          background: linear-gradient(135deg, #0077BE 0%, #00B4D8 100%);
+          background: #00CE7A;
           border-radius: 999px;
-          box-shadow: 0 4px 16px rgba(0, 119, 190, 0.3);
           font-size: 16px;
           font-style: normal;
           font-weight: 500;
           color: #1A1E1D;
           cursor: pointer;
-          transition: all 0.3s ease;
-          -webkit-tap-highlight-color: transparent;
-          touch-action: manipulation;
-          -webkit-appearance: none;
-          appearance: none;
-          user-select: none;
+          // margin-top: 16px;
+          transition: background 0.18s, filter 0.18s;
 
           &:hover,
           &:active {
-            background: linear-gradient(135deg, #006BA3 0%, #00A0C8 100%);
-            box-shadow: 0 5px 18px rgba(0, 119, 190, 0.25);
-            transform: translateY(-0.5px);
-          }
-          
-          &:active {
-            transform: scale(0.98);
-          }
-          
-          span:first-child {
-            color: #FFFFFF !important;
+            background: #00c864;
+            filter: brightness(0.98);
           }
         }
 
         .submit-btn:disabled {
-          cursor: not-allowed;
-          background: rgba(148, 163, 184, 0.2) !important;
-          color: #94A3B8 !important;
-          box-shadow: none !important;
-          opacity: 0.7;
-          transform: none !important;
-          
-          &:hover,
-          &:active {
-            background: rgba(148, 163, 184, 0.2) !important;
-            box-shadow: none !important;
-            transform: none !important;
-          }
+          cursor: not-allowed
         }
+
       }
     }
   }

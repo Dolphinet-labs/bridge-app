@@ -133,7 +133,7 @@ function closePopup() {
   width: 100%;
   height: 100%;
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #0077BE;
+  border-top: 4px solid #00CE7A;
   border-radius: 50%;
   animation: spin 2s linear infinite;
 }
@@ -152,7 +152,7 @@ function closePopup() {
   position: absolute;
   width: 15px;
   height: 15px;
-  background: linear-gradient(135deg, #0077BE 0%, #00B4D8 100%);
+  background-color: #00CE7A;
   border-radius: 50%;
   top: 50%;
   left: 50%;
@@ -199,7 +199,7 @@ function closePopup() {
 
 .coming-soon {
   font-size: 16px;
-  color: #0077BE;
+  color: #00CE7A;
   font-weight: 600;
   margin-bottom: 20px;
   opacity: 0;
@@ -210,7 +210,7 @@ function closePopup() {
 .btn {
   display: inline-block;
   padding: 12px 30px;
-  background: linear-gradient(135deg, #0077BE 0%, #00B4D8 100%);
+  background-color: #00CE7A;
   width: 100%;
   color: white;
   border: none;
@@ -232,7 +232,7 @@ function closePopup() {
 }
 
 .btn:hover {
-  background: linear-gradient(135deg, #005A8F 0%, #0096C7 100%);
+  background-color: #00C675;
   transform: translateY(-3px);
   box-shadow: 0 5px 15px rgba(255, 125, 0, 0.3);
 }

@@ -4,11 +4,7 @@
       <el-row>
         <el-col :xs="3" :sm="4" :md="5" :lg="9" :xl="11">
           <div class="gridContent">
-            <div class="net-toggle">
-              <button class="net-btn single" type="button" @click.stop="toggleEnvAndSwitch()">
-                {{ envLabel }}
-              </button>
-            </div>
+            <a href="/" class="flex"><img src="../assets/images/cpChain.png" alt="" /></a>
           </div>
         </el-col>
         <el-col :xs="21" :sm="20" :md="19" :lg="15" :xl="13">
@@ -86,11 +82,11 @@
           </el-icon>
           <!-- <h3>{{ $t("link.titel") }}</h3> -->
           <div class="headerlogo">
-            <img src="../../noword.png" alt="">
+            <img src="./icons/logo.svg" alt="">
             <h4>{{ $t("link.titel") }}</h4>
           </div>
           <ul class="scroll-area">
-            <li v-for="connector in wallets" :key="connector.id" @click="wallconnects(connector.id, targetChainId)">
+            <li v-for="connector in wallets" :key="connector.id" @click="wallconnects(connector.id, chainId)">
               <span> {{ connector.name }}</span>
               <img :src="connector.name == 'WalletConnect' ? img : connector.icon" alt="" />
 
@@ -106,7 +102,7 @@
           <span style="font-size: 20px;
 font-style: normal;
 font-weight: 500;
-line-height: normal;color: #1a1a1a;">{{ status }}</span>
+line-height: normal;color: #fff;">{{ status }}</span>
           <el-icon @click="showExit = false">
             <CloseBold />
           </el-icon>
@@ -165,14 +161,11 @@ import {
   computed,
 } from "vue";
 import { useChainId, useConnect, useDisconnect, useAccount } from "@wagmi/vue";
-import { switchChain } from '@wagmi/core'
-import { config } from '@/wagmi'
 import { injected } from '@wagmi/vue/connectors';
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { JsonRpcProvider, formatEther } from 'ethers'
 import { eventBus } from '@/utils/eventBus'
-import { useEnvStore } from "@/stores/env";
 
 // import { useClipboard } from 'vue-clipboard3'
 import { copyText } from 'vue3-clipboard'
@@ -180,37 +173,12 @@ import { copyText } from 'vue3-clipboard'
 const router = useRouter();
 const { locale, t } = useI18n();
 import img from "../assets/wallconnect.svg";
-const envStore = useEnvStore()
-const envLabel = computed(() => (envStore.networkEnv === 'mainnet' ? 'Dolphinet' : 'Dolphinet Testnet'))
 const menuRef = ref();
 const balance = ref('0')
 const chainId = useChainId();
 const { connect, connectors, error } = useConnect();
 const { disconnect } = useDisconnect();
 const { address, status } = useAccount();
-const targetChainId = computed(() => (envStore.networkEnv === 'mainnet' ? 1520 : 1519))
-
-async function toggleEnvAndSwitch() {
-  envStore.toggleEnv()
-  // 切到 Mainnet 时自动切换到 1520；切到 Testnet 时自动切换回 1519
-  try {
-    await switchChain(config, { chainId: targetChainId.value })
-    ElMessage({
-      message: `Switched to ${envLabel.value}`,
-      type: 'success',
-      duration: 2000,
-      showClose: true
-    })
-  } catch (e) {
-    // 用户拒绝/钱包不支持/未添加网络等
-    ElMessage({
-      message: `Please switch wallet network to ${envLabel.value} (chainId ${targetChainId.value})`,
-      type: 'warning',
-      duration: 3000,
-      showClose: true
-    })
-  }
-}
 
 onMounted(() => {
   eventBus.on('custom-event', (data) => {
@@ -312,14 +280,14 @@ const menuList = computed(() => {
       itemList: [
         {
           name: t("navbar.meun1.menu.name1"),
-          path: "https://explorer.dolphinode.world/",
+          path: "https://explorer.cpchain.com/",
           index: "1-1",
           acitved: true,
           type: "outLink",
         },
         {
           name: t("navbar.meun1.menu.name2"),
-          path: "https://explorer-testnet.dolphinode.world/",
+          path: "https://explorer-testnet.cpchain.com/",
           index: "1-2",
           acitved: true,
           type: "outLink",
@@ -366,14 +334,14 @@ const menuList = computed(() => {
       itemList: [
         {
           name: t("navbar.meun3.menu.name1"),
-          path: "https://docs.aqualink.com/",
+          path: "https://cpchain.gitbook.io/cpchaingitbook/",
           index: "3-1",
           acitved: true,
           type: "outLink",
         },
         {
           name: t("navbar.meun3.menu.name2"),
-          path: "https://docs.aqualink.com/user-guides/connecting-wallet-to-aqualink",
+          path: "https://cpchain.gitbook.io/cpchaingitbook/user-guides/connecting-wallet-to-cp-chain",
           index: "3-2",
           acitved: true,
           type: "outLink",
@@ -444,14 +412,10 @@ watch(status, (newStatus) => {
     showConnet.value = false;
   }
 });
-const rpcUrl = computed(() =>
-  envStore.networkEnv === 'mainnet'
-    ? 'https://rpc.dolphinode.world'
-    : 'https://rpc-testnet.dolphinode.world'
-)
+const rpcUrl = 'https://rpc-testnet.dolphinode.world'
 
 // 使用 ethers 提供的 JSON RPC Provider
-const provider = computed(() => new JsonRpcProvider(rpcUrl.value))
+const provider = new JsonRpcProvider(rpcUrl)
 watch(locale, (newLocale, oldLocale) => {
   console.log("locale changed:", oldLocale, "=>", newLocale);
 
@@ -470,7 +434,7 @@ watch(address, async (newAddress) => {
 
 async function getBalanceCp(newAddress) {
   try {
-    const raw = await provider.value.getBalance(newAddress)
+    const raw = await provider.getBalance(newAddress)
     balance.value = parseFloat(formatEther(raw)).toFixed(4)
   } catch (err) {
     console.error('查询失败:', err)
@@ -530,7 +494,7 @@ const newTop = ref();
 // 计算 header 的样式
 const headerStyle = ref({
   top: "0px", // Initial top position
-  backgroundColor: "rgba(255, 255, 255, 0)", // 初始透明背景色
+  backgroundColor: "rgba(18, 18, 18, 0)", // 初始透明背景色
   transition: "background-color 0.3s ease", // 只保留背景色过渡效果
 });
 
@@ -541,12 +505,12 @@ const handleScroll = () => {
 
 // 监听滚动位置变化，修改 header 样式
 watchEffect(() => {
-  // 背景色始终保持透明
-  const opacity = 0;
+  // 背景色透明度：超过 150px 时背景色变深至不透明
+  const opacity = scrollY.value > 70 ? 0.6 : scrollY.value / 70;
   const newTop = 0; // top 最大值为 30px
   // console.log(opacity)
   headerStyle.value = {
-    backgroundColor: `rgba(255, 255, 255, ${opacity})`,
+    backgroundColor: `rgba(18, 18, 18, ${opacity})`,
 
     transition: "top 0.3s ease,background-color 0.3s ease",
     top: `${newTop}px`, // 动态设置 top
@@ -625,93 +589,9 @@ const handleSelect = (index, indexPath) => {
   }
 }
 
-.net-toggle {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  margin-right: 10px;
-}
-
-.net-btn {
-  height: 32px;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 119, 190, 0.18);
-  background: rgba(255, 255, 255, 0.9);
-  color: #1E293B;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
-  user-select: none;
-  transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, transform 0.05s ease;
-}
-
-.net-btn.single {
-  border-color: rgba(0, 119, 190, 0.28);
-  background: linear-gradient(135deg, rgba(0, 119, 190, 0.10) 0%, rgba(0, 180, 216, 0.08) 100%);
-  color: #0077BE;
-  box-shadow: 0 6px 16px rgba(0, 119, 190, 0.10);
-}
-
-.net-btn.single:hover {
-  border-color: rgba(0, 119, 190, 0.40);
-  box-shadow: 0 8px 20px rgba(0, 119, 190, 0.14);
-}
-
-.net-btn.single:active {
-  transform: scale(0.98);
-}
-
-.net-btn.active {
-  border-color: rgba(0, 119, 190, 0.35);
-  background: linear-gradient(135deg, rgba(0, 119, 190, 0.12) 0%, rgba(0, 180, 216, 0.10) 100%);
-  color: #0077BE;
-}
-
 :deep(.el-menu-item),
 :deep(.el-sub-menu__title) {
   font-size: 16px;
-}
-
-:deep(.el-menu-item) {
-  color: #000000 !important;
-  
-  &:hover {
-    color: #0077BE !important;
-    background-color: rgba(0, 119, 190, 0.1) !important;
-  }
-  
-  &.is-active {
-    color: #0077BE !important;
-  }
-}
-
-// 针对下拉菜单（popup）中的菜单项
-:deep(.el-menu--popup) {
-  .el-menu-item {
-    color: #000000 !important;
-    
-    &:hover {
-      color: #0077BE !important;
-      background-color: rgba(0, 119, 190, 0.1) !important;
-    }
-  }
-}
-
-// 针对水平菜单中的下拉菜单项
-:deep(.el-menu--horizontal) {
-  .el-menu--popup {
-    .el-menu-item {
-      color: #000000 !important;
-      
-      &:hover {
-        color: #0077BE !important;
-        background-color: rgba(0, 119, 190, 0.1) !important;
-      }
-    }
-  }
 }
 
 :deep(.el-menu:not(.el-menu--collapse)) {
@@ -725,26 +605,6 @@ const handleSelect = (index, indexPath) => {
     font-size: 16px;
     right: 2px;
     margin-top: -7px;
-  }
-  
-  .el-menu {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(10px);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .el-menu--popup {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    
-    .el-menu-item {
-      color: #000000 !important;
-      
-      &:hover {
-        color: #0077BE !important;
-        background-color: rgba(0, 119, 190, 0.1) !important;
-      }
-    }
   }
 }
 
@@ -766,8 +626,8 @@ const handleSelect = (index, indexPath) => {
   z-index: 100;
   width: 100%;
   height: 100vh;
-  color: #1a1a1a;
-  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  background: rgb(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -778,10 +638,7 @@ const handleSelect = (index, indexPath) => {
     // height: 400px;
     max-width: 500px;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 4px 24px rgba(0, 119, 190, 0.12), 0 2px 8px rgba(0, 119, 190, 0.06);
-    border-bottom: 1px solid rgba(0, 119, 190, 0.1);
+    background: var(---, #151517);
     padding: 24px;
     position: absolute;
     max-width: 360px;
@@ -800,12 +657,6 @@ const handleSelect = (index, indexPath) => {
       position: absolute;
       right: 20px;
       top: 20px;
-      color: #000000;
-      cursor: pointer;
-      
-      &:hover {
-        color: #0077BE;
-      }
     }
 
     .headerlogo {
@@ -815,12 +666,12 @@ const handleSelect = (index, indexPath) => {
       flex-wrap: wrap;
 
       img {
-        max-width: 128px;
+        max-width: 72px;
         margin-bottom: 16px;
       }
 
       h4 {
-        color: #1a1a1a;
+        color: #FFF;
 
         font-size: 20px;
         font-style: normal;
@@ -872,9 +723,7 @@ const handleSelect = (index, indexPath) => {
         justify-content: space-between;
         align-items: center;
         border-radius: 16px;
-        background: rgba(255, 255, 255, 0.95);
-        border: 1px solid rgba(0, 119, 190, 0.15);
-        box-shadow: 0 2px 8px rgba(0, 119, 190, 0.06);
+        background: var(---, #1e1e1e);
         margin-bottom: 10px;
 
         img {
@@ -890,7 +739,6 @@ const handleSelect = (index, indexPath) => {
           font-style: normal;
           font-weight: 500;
           line-height: normal;
-          color: #1E293B;
           // margin-left: 30px;
         }
       }
@@ -912,10 +760,7 @@ const handleSelect = (index, indexPath) => {
     gap: 24px;
     position: relative;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 4px 24px rgba(0, 119, 190, 0.12), 0 2px 8px rgba(0, 119, 190, 0.06);
-    border-bottom: 1px solid rgba(0, 119, 190, 0.1);
+    background: var(---, #151517);
     cursor: pointer;
     position: absolute;
     animation: fadeIn 0.4s ease forwards;
@@ -971,18 +816,18 @@ const handleSelect = (index, indexPath) => {
           gap: 4px;
           flex: 1 0 0;
           border-radius: 100px;
-          background: rgba(0, 119, 190, 0.08);
-          border: 1px solid rgba(0, 119, 190, 0.25);
+          background: var(---, #252629);
+          border: none;
           outline: none;
           font-size: 14px;
           font-style: normal;
           font-weight: 500;
           line-height: normal;
-          color: #1E293B;
+          color: #fff;
         }
 
         .blances {
-          color: #666;
+          color: #8e8e92;
 
           font-size: 14px;
           font-style: normal;
@@ -1016,55 +861,33 @@ const handleSelect = (index, indexPath) => {
   }
 
   @media (max-width: 768px) {
-    .popup {
-      align-items: center;
-      justify-content: center;
-    }
-
     .content1 {
-      width: 90vw;
-      max-width: 360px;
-      bottom: auto;
-      position: relative;
-      border-radius: 16px;
-      padding: 24px;
-      margin: 0;
-      animation: fadeIn 0.4s ease forwards;
-      
-      ul {
-        max-height: 360px;
-      }
+      width: 100%;
+      bottom: 0;
+      animation: slide-up 0.3s ease;
     }
 
     .content2 {
       display: flex;
       max-width: 360px;
       width: 90vw;
+      // height: 250px;
       padding: 24px;
       flex-direction: column;
       align-items: flex-start;
       gap: 24px;
       position: relative;
       border-radius: 16px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      box-shadow: 0 4px 24px rgba(0, 119, 190, 0.12), 0 2px 8px rgba(0, 119, 190, 0.06);
-      border-bottom: 1px solid rgba(0, 119, 190, 0.1);
-      cursor: default;
-      animation: fadeIn 0.4s ease forwards;
-      bottom: auto;
-      margin: 0;
+      background: var(---, #151517);
+      cursor: pointer;
+      animation: slide-up 0.3s ease;
+      position: absolute;
+      bottom: 0;
 
       :deep(.el-icon) {
         position: absolute;
         right: 20px;
         top: 20px;
-        color: #000000;
-        cursor: pointer;
-        
-        &:hover {
-          color: #0077BE;
-        }
       }
 
       :deep(.el-button) {
@@ -1164,39 +987,34 @@ a {
   }
 
   .content {
-    height: 70px;
+    height: 72px;
     width: auto;
     position: fixed;
     backdrop-filter: blur(10px);
     box-sizing: content-box;
     /* 固定在页面顶部 */
-    top: env(safe-area-inset-top, 0px);
+    top: 0px;
     // left: 0;
     // right: 0;
     // border-radius: 100px;
     backdrop-filter: blur(14px);
     padding: 0 24px;
-    padding-left: max(24px, env(safe-area-inset-left));
-    padding-right: max(24px, env(safe-area-inset-right));
     width: calc(100% - 48px);
-    width: calc(100% - max(48px, env(safe-area-inset-left) + env(safe-area-inset-right) + 24px * 2));
     // border-radius: 100px;
 
     .gridContent {
-      height: 70px;
+      height: 72px;
       display: flex;
       align-items: center;
       width: 100%;
 
       img {
-        height: 105px;
-        object-fit: contain;
-        margin-top: 8px;
+        height: 30px;
       }
     }
 
     .gridContent2 {
-      height: 70px;
+      height: 72px;
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -1216,8 +1034,8 @@ a {
         align-items: center;
         gap: 10px;
         border-radius: 100px;
-        border: 1px solid rgba(0, 119, 190, 0.3);
-        color: #0077BE;
+        border: 1px solid #fff;
+        color: #fff;
         width: 130px;
 
         font-size: 14px;
@@ -1232,19 +1050,13 @@ a {
       button:hover {
         cursor: pointer;
 
-        border: 1px solid #0077BE;
+        border: 1px solid #00ce7a;
 
-        color: #0077BE;
+        color: #00ce7a;
       }
 
       .menu {
         display: block;
-
-        :deep(.el-sub-menu__title) {
-          img {
-            filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2000%) hue-rotate(195deg) brightness(0.75) contrast(1);
-          }
-        }
       }
 
       .menu1 {
@@ -1254,7 +1066,6 @@ a {
 
         img {
           height: 20px;
-          filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2000%) hue-rotate(195deg) brightness(0.75) contrast(1);
         }
 
         display: none;
@@ -1264,25 +1075,12 @@ a {
 
   @media (max-width: 1000px) {
     .content {
-      height: 73px;
+      height: 72px;
       // width: calc(100% - 100px);
       // border-radius: 100px;
       // backdrop-filter: blur(14px);
       padding: 0 24px;
       // border-radius: 100px;
-      
-      .gridContent {
-        height: 73px;
-        
-        img {
-          height: 90px;
-          margin-top: 6px;
-        }
-      }
-      
-      .gridContent2 {
-        height: 73px;
-      }
     }
   }
 
@@ -1304,30 +1102,25 @@ a {
     }
 
     .content {
-      height: 58px;
+      height: 48px;
       width: calc(100% - 30px);
-      width: calc(100% - max(30px, env(safe-area-inset-left) + env(safe-area-inset-right)));
-      padding-left: max(15px, env(safe-area-inset-left));
-      padding-right: max(15px, env(safe-area-inset-right));
 
       backdrop-filter: blur(14px);
       // border-radius: 100px;
 
       .gridContent {
-        height: 58px;
+        height: 48px;
         display: flex;
         align-items: center;
         width: 100%;
 
         img {
-          height: 78px;
-          object-fit: contain;
-          margin-top: 5px;
+          height: 20px;
         }
       }
 
       .gridContent2 {
-        height: 58px;
+        height: 48px;
         display: flex;
         align-items: center;
         justify-content: flex-end;
@@ -1341,23 +1134,18 @@ a {
           margin-top: 8px;
           cursor: pointer;
           display: flex;
-          min-height: 44px;
           height: 44px;
           padding: 0px 16px;
           justify-content: center;
           align-items: center;
           gap: 10px;
           border-radius: 100px;
-          border: 1px solid rgba(0, 168, 255, 0.5);
-          color: #1E293B;
+          border: 1px solid #fff;
+          color: #fff;
+
           font-size: 16px;
           font-weight: 500;
           background: transparent;
-          -webkit-tap-highlight-color: transparent;
-          touch-action: manipulation;
-          -webkit-appearance: none;
-          appearance: none;
-          user-select: none;
         }
 
         .menu {
@@ -1372,44 +1160,36 @@ a {
           img {
             height: 20px;
             margin-right: 10px;
-            filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2000%) hue-rotate(195deg) brightness(0.75) contrast(1);
           }
 
           button {
             margin-top: 0px !important;
             cursor: pointer;
             display: flex;
-            min-height: 44px;
-            height: 44px;
+            height: 25px;
             justify-content: center;
             align-items: center;
-            min-width: 100px;
             width: 100px;
-            padding: 0 12px;
+            padding: 0 5px;
             border-radius: 100px;
-            border: 1px solid rgba(0, 119, 190, 0.5);
-            color: #0077BE;
+            border: 1px solid #fff;
+            color: #fff;
             font-family: "PingFang SC";
             font-size: 12px;
             font-weight: 500;
             background: transparent;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            -webkit-appearance: none;
-            appearance: none;
-            user-select: none;
           }
 
           button:hover {
             cursor: pointer;
 
-            border: 1px solid #0077BE;
+            border: 1px solid #00ce7a;
 
-            color: #0077BE;
+            color: #00ce7a;
           }
 
           :deep(.el-icon:hover) {
-            color: #0077BE;
+            color: #00ce7a;
           }
         }
       }

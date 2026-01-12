@@ -3,10 +3,9 @@ import { ElMessage } from 'element-plus'
 import { readContract, estimateFeesPerGas, estimateGas, writeContract, waitForTransactionReceipt } from '@wagmi/core'
 import { config } from '../../wagmi.ts'
 import erc20ABI from "@/assets/abi/erc20ABI"
-import erc721 from "@/assets/abi/erc721ABI.json"
-import poolManager from "@/assets/abi/poolManagerABI.json"
-const bridgeABI = poolManager.abi
-const erc721ABI = erc721.abi
+import bridge from "@/assets/abi/bridgeABI"
+const bridgeABI = bridge.abi
+// console.log(bridgeABI)
 
 // 手动定义 maxUint256
 const maxUint256 = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
@@ -58,7 +57,7 @@ export async function computedGas(abi, functionName, args, to, account, value = 
       maxPriorityFeePerGas: feesPerGas.maxPriorityFeePerGas,
       ...(value && { value })
     })
-
+    console.log(abi, functionName, args, to, account, value )
     // 添加 20% 缓冲来应对高峰期
     const gasWithBuffer = (gas * BigInt(120)) / BigInt(100)
 
@@ -159,191 +158,6 @@ export async function approveToken({
 }
 
 /**
- * 检查 ERC721 是否已授权给桥合约
- */
-export async function checkErc721Approved({
-  nftAddress,
-  tokenId,
-  ownerAddress,
-  operatorAddress
-}) {
-  const tokenIdBigInt = safeBigInt(tokenId)
-  try {
-    const approvedForAll = await readContract(config, {
-      address: nftAddress,
-      abi: erc721ABI,
-      functionName: 'isApprovedForAll',
-      args: [ownerAddress, operatorAddress]
-    })
-    if (approvedForAll) return true
-
-    const approvedAddress = await readContract(config, {
-      address: nftAddress,
-      abi: erc721ABI,
-      functionName: 'getApproved',
-      args: [tokenIdBigInt]
-    })
-
-    return (approvedAddress || '').toLowerCase() === operatorAddress.toLowerCase()
-  } catch (error) {
-    console.error('Failed to check ERC721 approval:', error)
-    return false
-  }
-}
-
-/**
- * 授权单个 ERC721 tokenId 给桥合约
- */
-export async function approveErc721({
-  nftAddress,
-  tokenId,
-  operatorAddress,
-  BRIDGE_MESSAGES
-}) {
-  try {
-    const tokenIdBigInt = safeBigInt(tokenId)
-    const hash = await writeContract(config, {
-      abi: erc721ABI,
-      address: nftAddress,
-      functionName: 'approve',
-      args: [operatorAddress, tokenIdBigInt]
-    })
-
-    await waitForTransactionReceipt(config, { hash })
-
-    ElMessage({
-      message: BRIDGE_MESSAGES.approvalSuccess || 'Approval success',
-      type: 'success',
-      duration: 3000,
-      showClose: true
-    })
-
-    return hash
-  } catch (error) {
-    console.error('❌ ERC721 approve error:', error)
-    if (isUserRejectedError(error)) {
-      throw new Error(BRIDGE_MESSAGES.userCancelledAuth || 'User cancelled')
-    }
-    throw error
-  }
-}
-
-/**
- * NFT 跨链（本地 NFT -> 远端 Wrapped/Collection）
- */
-export async function bridgeNftOptimized({
-  localCollection,
-  remoteCollection,
-  tokenId,
-  userAddress,
-  bridgeContractAddress,
-  fromChainId,
-  targetChainId,
-  toAddress,
-  setTxHash,
-  setApprovalHash,
-  BRIDGE_MESSAGES
-}) {
-  try {
-    // 1) 校验/授权 ERC721
-    const approved = await checkErc721Approved({
-      nftAddress: localCollection,
-      tokenId,
-      ownerAddress: userAddress,
-      operatorAddress: bridgeContractAddress
-    })
-
-    if (!approved) {
-      const approvalHash = await approveErc721({
-        nftAddress: localCollection,
-        tokenId,
-        operatorAddress: bridgeContractAddress,
-        BRIDGE_MESSAGES
-      })
-      setApprovalHash && setApprovalHash(approvalHash)
-    }
-
-    // 2) 计算 DOL->其他链手续费（msg.value）
-    const dolChainId = await readContract(config, {
-      address: bridgeContractAddress,
-      abi: bridgeABI,
-      functionName: 'dolChainId'
-    })
-
-    const needsNativeFee = BigInt(fromChainId) === BigInt(dolChainId) && BigInt(targetChainId) !== BigInt(dolChainId)
-    const nativeFee = needsNativeFee
-      ? await readContract(config, {
-          address: bridgeContractAddress,
-          abi: bridgeABI,
-          functionName: 'nftBridgeBaseFeePerChain',
-          args: [BigInt(targetChainId)]
-        })
-      : 0n
-
-    const args = [
-      fromChainId,
-      targetChainId,
-      localCollection,
-      remoteCollection,
-      safeBigInt(tokenId),
-      toAddress
-    ]
-
-    const gasEstimate = await computedGas(
-      bridgeABI,
-      'BridgeInitiateLocalNFT',
-      args,
-      bridgeContractAddress,
-      userAddress,
-      (nativeFee && BigInt(nativeFee) > 0n) ? BigInt(nativeFee) : undefined
-    )
-
-    const hash = await writeContract(config, {
-      abi: bridgeABI,
-      address: bridgeContractAddress,
-      functionName: 'BridgeInitiateLocalNFT',
-      args,
-      ...(nativeFee && BigInt(nativeFee) > 0n ? { value: BigInt(nativeFee) } : {}),
-      gas: gasEstimate.gas,
-      maxFeePerGas: gasEstimate.maxFeePerGas,
-      maxPriorityFeePerGas: gasEstimate.maxPriorityFeePerGas
-    })
-
-    setTxHash && setTxHash(hash)
-
-    const receipt = await waitForTransactionReceipt(config, { hash })
-    if (receipt.status !== 'success') throw new Error(BRIDGE_MESSAGES.bridgeFailed || 'Bridge failed')
-
-    ElMessage({
-      message: BRIDGE_MESSAGES.bridgeSuccess || 'Bridge success',
-      type: 'success',
-      duration: 3000,
-      showClose: true
-    })
-
-    return { success: true, txHash: hash, receipt }
-  } catch (error) {
-    console.error('❌ NFT bridge error:', error)
-    if (isUserRejectedError(error)) {
-      ElMessage({
-        message: BRIDGE_MESSAGES.userRejected || 'User rejected',
-        type: 'warning',
-        duration: 2000,
-        showClose: true
-      })
-    } else {
-      ElMessage({
-        message: BRIDGE_MESSAGES.bridgeFailed || 'Bridge failed',
-        type: 'error',
-        duration: 2000,
-        showClose: true
-      })
-    }
-    throw error
-  }
-}
-
-/**
  * 优化的 ETH 桥接函数
  */
 export async function bridgeEthOptimized({
@@ -367,32 +181,13 @@ export async function bridgeEthOptimized({
       userAddress
     })
     
-    // 合约已改为 BridgeInitiateNativeToken（原生币桥接），并且在 DOL->其他链方向需要额外支付 nativeBridgeFee
-    const dolChainId = await readContract(config, {
-      address: bridgeContractAddress,
-      abi: bridgeABI,
-      functionName: 'dolChainId'
-    })
-
-    const needsNativeFee = BigInt(fromChainId) === BigInt(dolChainId) && BigInt(targetChainId) !== BigInt(dolChainId)
-    const nativeFee = needsNativeFee
-      ? await readContract(config, {
-          address: bridgeContractAddress,
-          abi: bridgeABI,
-          functionName: 'nativeBridgeFee',
-          args: [BigInt(targetChainId)]
-        })
-      : 0n
-
-    const txValue = amountBigInt + BigInt(nativeFee || 0)
-    
     const gasEstimate = await computedGas(
       bridgeABI,
       'BridgeInitiateNativeToken',
       [fromChainId, targetChainId, destTokenAddress, userAddress],
       bridgeContractAddress,
       userAddress,
-      txValue
+      amountBigInt
     )
     
     const hash = await writeContract(config, {
@@ -400,7 +195,7 @@ export async function bridgeEthOptimized({
       address: bridgeContractAddress,
       functionName: 'BridgeInitiateNativeToken',
       args: [fromChainId, targetChainId, destTokenAddress, userAddress],
-      value: txValue,
+      value: amountBigInt,
       gas: gasEstimate.gas,
       maxFeePerGas: gasEstimate.maxFeePerGas,
       maxPriorityFeePerGas: gasEstimate.maxPriorityFeePerGas
@@ -521,30 +316,12 @@ export async function bridgeErc20Optimized({
     ]
     
     console.log(args)
-    // 合约已改为 payable，并在 DOL->其他链方向收取 erc20BridgeFee（以 NativeTokenAddress 计价，使用 msg.value 支付）
-    const dolChainId = await readContract(config, {
-      address: bridgeContractAddress,
-      abi: bridgeABI,
-      functionName: 'dolChainId'
-    })
-
-    const needsNativeFee = BigInt(fromChainId) === BigInt(dolChainId) && BigInt(targetChainId) !== BigInt(dolChainId)
-    const nativeFee = needsNativeFee
-      ? await readContract(config, {
-          address: bridgeContractAddress,
-          abi: bridgeABI,
-          functionName: 'erc20BridgeFee',
-          args: [BigInt(targetChainId)]
-        })
-      : 0n
-
     const gasEstimate = await computedGas(
       bridgeABI,
       'BridgeInitiateERC20',
       args,
       bridgeContractAddress,
-      userAddress,
-      (nativeFee && BigInt(nativeFee) > 0n) ? BigInt(nativeFee) : undefined
+      userAddress
     )
     
     const hash = await writeContract(config, {
@@ -552,7 +329,6 @@ export async function bridgeErc20Optimized({
       address: bridgeContractAddress,
       functionName: 'BridgeInitiateERC20',
       args: args,
-      ...(nativeFee && BigInt(nativeFee) > 0n ? { value: BigInt(nativeFee) } : {}),
       gas: gasEstimate.gas,
       maxFeePerGas: gasEstimate.maxFeePerGas,
       maxPriorityFeePerGas: gasEstimate.maxPriorityFeePerGas
@@ -624,11 +400,10 @@ export async function bridgeMethodOptimized({
   BRIDGE_MESSAGES
 }) {
   try {
-    // 修改判断逻辑：Dolphinet(testnet=1519/mainnet=1520) 的原生币为 DOL，其它链的原生币为 ETH
-    const isDolphinetChain = fromChainId === 1519 || fromChainId === 1520
+    // 修改判断逻辑
     const shouldUseBridgeEthOptimized = 
-      (isDolphinetChain && tokenName === "DOL") ||  // Dolphinet 上跨链 DOL（原生币）
-      (!isDolphinetChain && tokenName === "ETH")    // 其它链跨链 ETH（原生币）
+      (fromChainId === 1519 && tokenName === "DOL") ||  // cp chain 上跨链 CP 币
+      (fromChainId !== 1519 && tokenName === "ETH")    // 除了 cp chain 以外的链跨链 ETH
     
     if (shouldUseBridgeEthOptimized) {
       return await bridgeEthOptimized({

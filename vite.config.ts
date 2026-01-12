@@ -12,7 +12,7 @@ export default defineConfig({
     cors: true, // 允许跨域请求
     proxy: {
       "/api": {
-        target: "https://bridge-api-testnet.aqualink.com/api",
+        target: "https://bridge-api-testnet.cpchain.com/api",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ""),

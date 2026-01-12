@@ -70,30 +70,6 @@ export default {
     time: "转账时间",
     fee: "费用",
     continues: "继续"
-    ,
-    mode: {
-      token: "代币跨链",
-      nft: "NFT跨链"
-    },
-    nft: {
-      crosschain: "NFT跨链",
-      localCollection: "源NFT合约地址",
-      remoteCollection: "目标NFT合约地址",
-      tokenId: "Token ID",
-      to: "接收地址",
-      toPlaceholder: "默认当前钱包地址",
-      inputAddress: "请输入合约地址(0x...)",
-      fee: "NFT手续费",
-      myNfts: "我的NFT",
-      refresh: "刷新",
-      loading: "加载中",
-      chooseTokenId: "请选择 TokenId",
-      manualInput: "手动输入",
-      useList: "使用列表",
-      notEnumerable: "该NFT不支持链上枚举（ERC721Enumerable），请手动输入 TokenId",
-      noNft: "当前钱包未持有该NFT",
-      readFailed: "读取NFT列表失败，请检查网络或合约地址"
-    }
   },
   notice: {
     title: "功能开发中",
@@ -118,7 +94,7 @@ export default {
         name1: 'DApp市场',
         name2: 'LaunchPool',
         name3: "质押",
-        name4: "AquaLink算力"
+        name4: "CP算力"
       }
     },
     meun3: {
@@ -166,14 +142,14 @@ export default {
 
   },
   blockOne: {
-    subTitle: "AquaLink 高性能模块化 EVM L1 区块链",
+    subTitle: "CP Chain 高性能模块化 EVM L1 区块链",
     transparentBTn: "开发文档",
-    whiteBtn: "添加AquaLink"
+    whiteBtn: "添加CP Chain"
   },
   blockTwo: {
-    title: "什么是 AquaLink",
+    title: "什么是 CP Chain",
     subTitle: "超高性能模块化 Layer1 区块链",
-    intro: "AquaLink 是由 Aqua Labs 自主研发的高性能模块化 EVM L1 区块链，具备快速确认与跨链兼容能力，致力于连接 CeFi 与 DeFi，驱动下一代数字资产与应用生态。",
+    intro: "CP Chain 是由 CP Labs 自主研发的高性能模块化 EVM L1 区块链，具备快速确认与跨链兼容能力，致力于连接 CeFi 与 DeFi，驱动下一代数字资产与应用生态。",
     feature1Title: "100% 兼容 EVM",
     feature1Description: "完全兼容现有的EVM工具和标准，实现无缝的合约部署和迁移。",
     "feature2Title": "超高吞吐量",
@@ -191,7 +167,7 @@ export default {
   },
   "blockThree": {
     "title": "一个属于建设者的Web3时代即将到来",
-    "subTitle": "AquaLink 正在为全球开发者、节点和用户提供统一、高效、可持续发展的基础设施，通过模块化架构、高性能共识和多层激励机制，打造真正支持大规模应用落地、生态共赢的下一代Layer1公链。",
+    "subTitle": "CP Chain 正在为全球开发者、节点和用户提供统一、高效、可持续发展的基础设施，通过模块化架构、高性能共识和多层激励机制，打造真正支持大规模应用落地、生态共赢的下一代Layer1公链。",
     "feature1Title": "开发者友好",
     "feature1Description": "模块化设计 + 完整 EVM 兼容，支持快速部署与大规模应用落地。",
     "feature2Title": "高性能底座",
@@ -201,7 +177,7 @@ export default {
 
   },
   histroy: {
-    title: "AquaLink路线图",
+    title: "CP Chain路线图",
     blockOne: {
       title: "2025 Q3 - Q4",
       silde: "基础建设与生态启动",
@@ -225,17 +201,17 @@ export default {
       silde: "全球品牌与破圈应用",
       // 从网络到市场，释放真实价值
       name1: "接入主流金融及衍生品",
-      name2: "加速 AquaLink 实体产业落地应用",
+      name2: "加速 CP Chain 实体产业落地应用",
       name3: "启动全球化社区运营体系 ",
       name4: "实现核心代币的通缩机制升级",
     }
   },
   blockFour: {
-    "title": "AquaLink发展历程",
+    "title": "CP Chain发展历程",
 
     Q1: {
       title: "Q1 2025",
-      name1: "AquaLink主网上线",
+      name1: "CP Chain主网上线",
       name2: "代币生成事件",
       name3: "空投与中心化交易所上线",
       "nameone": "为速度而生，致力于影响力",
@@ -246,13 +222,13 @@ export default {
 
     Q2: {
       title: "Q2 2025",
-      name1: "AquaLink浏览器上线",
+      name1: "CP Chain浏览器上线",
       name2: "Staking机制上线",
       name3: " 流动性挖矿启动",
     },
     Q3: {
       title: "Q3 2025",
-      name1: "AquaLink生态钱包发布",
+      name1: "CP Chain生态钱包发布",
       name2: "智能合约平台开放",
       name3: "跨链桥Beta版本上线",
     }
@@ -262,10 +238,10 @@ export default {
   },
   // blockSeven
   "blockSeven": {
-    title: "AquaLink的全球活动现场"
+    title: "CP Chain的全球活动现场"
   },
   footers: {
-    title: "加入 AquaLink实现多方生态价值共赢",
+    title: "加入 CP Chain实现多方生态价值共赢",
     contact: "联系我们:",
     content1: {
       title: "网络",
