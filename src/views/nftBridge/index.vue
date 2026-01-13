@@ -12,7 +12,7 @@
 
     </div>
     <div class="swap-container">
-     
+
       <div class="content">
         <!-- 链选择区域 -->
         <div class="item">
@@ -110,8 +110,12 @@
 
     <!-- 历史记录  -->
     <div class="recordList">
-      <div class="records-title" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; ">{{ $t('bridge.record.title') }}
-        <el-icon :size="20" @click="getRecordsList()"><Refresh /></el-icon>
+      <div class="records-title"
+        style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; ">{{
+          $t('bridge.record.title') }}
+        <el-icon :size="20" @click="getRecordsList()">
+          <Refresh />
+        </el-icon>
       </div>
       <div v-if="records.length > 0">
         <table cellpadding="0" cellspacing="0">
@@ -140,9 +144,9 @@
               <td>{{ formatToken(row.fee, row.token_name) }}</td>
 
               <td>{{
-              row.amount
+                row.amount
               }}</td>
-              <td>{{ shortAddress(row.from_address) }}</td> 
+              <td>{{ shortAddress(row.from_address) }}</td>
               <td>{{ shortAddress(row.to_address) }}</td>
               <td>
                 <span :class="['status', row.status === 1 ? 'success' : 'fail']">
@@ -169,7 +173,7 @@
               <b class="sendName">TokedId
               </b>
               <span class="see">
-                {{ row.amount}}
+                {{ row.amount }}
               </span>
             </div>
             <div class="item">
@@ -381,8 +385,8 @@ async function handleSubmitClick() {
       })
       console.log('Tx Hash:', bridgeResult.hash)
       // 可以在此处重置部分状态，或刷新列表
-    await  getNftList()
-     await getRecordsList()
+      await getNftList()
+      await getRecordsList()
     }
 
   } catch (error) {
@@ -428,12 +432,20 @@ function showChain(state1) {
 }
 
 function switchChains() {
-  let a = fromChain.value
-  let b = toChain.value
-  let temp = { ...a }
-  Object.assign(a, b)
-  Object.assign(b, temp)
-  getNftList()
+  if (fromChain.value.chainId == 1520 || toChain.value.chainId == 1520) {
+    let a = fromChain.value
+    let b = toChain.value
+    let temp = { ...a }
+    Object.assign(a, b)
+    Object.assign(b, temp)
+    getNftList()
+  } else {
+    ElMessage({
+      message: '其它链不能互夸,目前只支持dol <-> 其他链！',
+      type: 'warning',
+      plain: true,
+    })
+  }
 }
 
 function fliterChain() {
@@ -463,12 +475,29 @@ function select(val) {
     return
   }
   if (state.value == 1 && val.chainId != fromChain.value.chainId) {
-    fromChain.value = selected.value
-    getNftList()
+    if (toChain.value.chainId == 1520) {
+      fromChain.value = selected.value
+      getNftList()
+    } else {
+      ElMessage({
+        message: '其它链不能互夸,目前只支持dol <-> 其他链！',
+        type: 'warning',
+        plain: true,
+      })
+    }
+
   }
   if (state.value == 2 && val.chainId != toChain.value.chainId) {
-    toChain.value = selected.value
-    getNftList()
+    if (fromChain.value.chainId == 1520) {
+      toChain.value = selected.value
+      getNftList()
+    } else {
+      ElMessage({
+        message: '其它链不能互夸,目前只支持dol <-> 其他链！',
+        type: 'warning',
+        plain: true,
+      })
+    }
   }
 }
 
@@ -483,7 +512,7 @@ async function getNftList() {
   let result = await getNfts(fromChainId, toChainId)
   if (result.data.code == 200) {
     if (!result.data.list.nft) {
-      
+
       return
     }
     nftOptions.value = result.data.list?.nft
@@ -536,10 +565,10 @@ function handleCurrentChange(val) {
 // 生命周期
 onMounted(() => {
   // 如果已连接，初始化加载
-  
+
   if (status.value === 'connected') {
     getNftList()
-     getRecordsList()
+    getRecordsList()
   }
 })
 </script>
@@ -1105,4 +1134,5 @@ onMounted(() => {
       padding: 15px;
     }
   }
-}</style>
+}
+</style>

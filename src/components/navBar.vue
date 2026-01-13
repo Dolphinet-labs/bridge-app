@@ -412,7 +412,7 @@ watch(status, (newStatus) => {
     showConnet.value = false;
   }
 });
-const rpcUrl = 'https://rpc-testnet.dolphinode.world'
+const rpcUrl = 'https://rpc.dolphinode.world'
 
 // 使用 ethers 提供的 JSON RPC Provider
 const provider = new JsonRpcProvider(rpcUrl)

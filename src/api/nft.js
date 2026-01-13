@@ -3,7 +3,7 @@ import axios from "axios"
 export function getNfts(sourceChainId, destChainId) {
     return axios({
 
-        url: "https://bridge-testnet.dolphinode.world/api/v1/nft-list",
+        url: "https://bridge-api.dolphinode.world/api/v1/nft-list",
         method: "get",
         params: {
             sourceChainId: sourceChainId,
@@ -19,7 +19,7 @@ export function getNfts(sourceChainId, destChainId) {
 export function getTokenIdList(chainId, address, owner) {
     return axios({
 
-        url: "https://bridge-testnet.dolphinode.world/api/v1/nft-info",
+        url: "https://bridge-api.dolphinode.world/api/v1/nft-info",
         method: "get",
         params: {
             chainId: chainId,

@@ -55,9 +55,9 @@
           </div>
           <!-- 右侧 -->
           <div class="amount-side">
-            <div class="token-selector" @click="showCoin()"  v-if="fromChain.chainId == 1519 && coinChoose.name == 'USDC'">
+            <div class="token-selector" @click="showCoin()" v-if="fromChain.chainId == 1520 && coinChoose.name == 'USDC'">
 
-              <img :src="getImageUrl_1('usdol.png')" class="token-icon"  />
+              <img :src="getImageUrl_1('usdol.png')" class="token-icon" />
               <span>USDOL</span>
               <svg class="arrow" width="16" height="16" viewBox="0 0 20 20">
                 <path d="M6 8l4 4 4-4" stroke="#aaa" stroke-width="2" fill="none" stroke-linecap="round" />
@@ -65,7 +65,7 @@
             </div>
 
 
-            <div  class="token-selector" @click="showCoin()"  v-else>
+            <div class="token-selector" @click="showCoin()" v-else>
 
               <img :src="getImageUrl_1(coinChoose.img)" class="token-icon" />
               <span>{{ coinChoose.name }}</span>
@@ -77,7 +77,7 @@
               <img src="@/assets/images/bridge/loading-gray.svg" v-if="isLoadingBalance" alt="">
               <span v-else>
                 &nbsp;{{ fromBalance }}
-                {{fromChain.chainId == 1519 && coinChoose.name == 'USDC'?'USDOL' :coinChoose.name }}
+                {{ fromChain.chainId == 1520 && coinChoose.name == 'USDC' ? 'USDOL' : coinChoose.name }}
               </span>
 
             </div>
@@ -85,7 +85,7 @@
         </div>
 
         <div class="summary-card">
-          <div class="summary-main"  v-if="fromChain.chainId == 1519 && coinChoose.name == 'USDC'">
+          <div class="summary-main" v-if="fromChain.chainId == 1520 && coinChoose.name == 'USDC'">
             <img class="summary-icon" :src="getImageUrl_1('usdol.png')" alt="ETH" />
             <div class="summary-info">
               <div class="summary-amt">{{ bridgeAmount }}USDOL</div>
@@ -93,7 +93,7 @@
             </div>
           </div>
 
-          <div class="summary-main"  v-else>
+          <div class="summary-main" v-else>
             <img class="summary-icon" :src="getImageUrl_1(coinChoose.img)" alt="ETH" />
             <div class="summary-info">
               <div class="summary-amt">{{ bridgeAmount }}{{ coinChoose.name }}</div>
@@ -104,7 +104,8 @@
             <div class="summary-fee">{{ $t('bridge.handlingfee') }}
 
               <img v-if="isloadingGas" src="@/assets/images/bridge/loading-gray.svg" alt="">
-              <span v-else> ${{ allusdtFees }}({{ allbridgeFees }}{{ fromChain.chainId == 1519 && coinChoose.name == 'USDC'?'USDOL' :coinChoose.name }})</span>
+              <span v-else> ${{ allusdtFees }}({{ allbridgeFees }}{{ fromChain.chainId == 1520 && coinChoose.name ==
+                'USDC' ? 'USDOL' : coinChoose.name }})</span>
             </div>
             <div class="summary-time">
               {{ $t('bridge.transferTime') }}
@@ -134,7 +135,7 @@
     </div>
 
 
-    <div class="confirm-modal"  v-if="bridgeStep === 2">
+    <div class="confirm-modal" v-if="bridgeStep === 2">
       <!-- 顶部标题与关闭 -->
       <div class="modal-header">
         <el-icon style="color: #fff;cursor: pointer;" @click="tab(1)">
@@ -154,7 +155,7 @@
           </div>
           <span class="block-addr"> {{ ellipsisFilter(address) }}</span>
         </div>
-        <div class="block-amount" v-if="fromChain.chainId == 1519 && coinChoose.name == 'USDC'">
+        <div class="block-amount" v-if="fromChain.chainId == 1520 && coinChoose.name == 'USDC'">
           <img :src="getImageUrl_1('usdol.png')" class="amount-icon" alt="">
           <span class="amount-value">{{ amount }} USDOL</span>
         </div>
@@ -172,7 +173,7 @@
           </div>
           <span class="block-addr"> {{ ellipsisFilter(address) }}</span>
         </div>
-        <div class="block-amount" v-if="toChain.chainId == 1519 && coinChoose.name == 'USDC'">
+        <div class="block-amount" v-if="toChain.chainId == 1520 && coinChoose.name == 'USDC'">
           <img :src="getImageUrl_1('usdol.png')" class="amount-icon" alt="">
           <span class="amount-value">{{ bridgeAmount }} USDOL</span>
         </div>
@@ -244,18 +245,20 @@
         <div class="chain-list">
           <div v-for="coin in allCoinList" :key="coin.name" :class="{ active: coin.name === coinChoose.name }"
             @click="select2(coin)">
+            <div v-if="coin.show">
+              <div v-if="fromChain.chainId == 1520 && coin.name == 'USDC'" class="chain-item">
+                <img :src="getImageUrl_1('usdol.png')" alt="" class="chain-icon">
+                <span class="chain-name">USDOL</span>
 
-            <div v-if="fromChain.chainId == 1519 && coin.name == 'USDC'" class="chain-item">
-              <img :src="getImageUrl_1('usdol.png')" alt="" class="chain-icon">
-              <span class="chain-name">USDOL</span>
+                <span v-if="coin.name === coinChoose.name" class="check-mark">✔</span>
+              </div>
+              <div v-else class="chain-item">
+                <img :src="getImageUrl_1(coin.img)" alt="" class="chain-icon">
+                <span class="chain-name">{{ coin.name }}</span>
 
-              <span v-if="coin.name === coinChoose.name" class="check-mark">✔</span>
-            </div>
-            <div v-else class="chain-item">
-              <img :src="getImageUrl_1(coin.img)" alt="" class="chain-icon">
-              <span class="chain-name">{{ coin.name }}</span>
+                <span v-if="coin.name === coinChoose.name" class="check-mark">✔</span>
+              </div>
 
-              <span v-if="coin.name === coinChoose.name" class="check-mark">✔</span>
             </div>
           </div>
         </div>
@@ -263,8 +266,12 @@
     </div>
     <!-- 历史记录  -->
     <div class="recordList">
-      <div class="records-title" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; ">{{ $t('bridge.record.title') }}
-        <el-icon :size="20" @click="getRecordsList()"><Refresh /></el-icon>
+      <div class="records-title"
+        style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; ">{{
+          $t('bridge.record.title') }}
+        <el-icon :size="20" @click="getRecordsList()">
+          <Refresh />
+        </el-icon>
       </div>
       <div v-if="records.length > 0">
         <table cellpadding="0" cellspacing="0">
@@ -453,8 +460,8 @@ const search2 = ref("")
 const chains = ref(networks)
 const fromBalance = ref(0)
 const toBalance = ref(0)
-const fromChain = ref(networks[0])
-const toChain = ref(networks[1])
+const fromChain = ref(networks[1])
+const toChain = ref(networks[0])
 const state = ref()
 
 
@@ -480,26 +487,26 @@ const coinList = [
   {
     img: "eth.svg",
     name: "ETH",
-    minBridgeAmount: 0.1
+    minBridgeAmount: 0.1,
+    show: true
   }, {
     img: "usdt.png",
     name: "USDT",
-    minBridgeAmount: 0.1
+    minBridgeAmount: 0.1,
+    show: true
   },
   {
     img: "usdc.svg",
     name: "USDC",
-    minBridgeAmount: 0.1
+    minBridgeAmount: 0.1,
+    show: true
   },
-  {
-    img: "dai.png",
-    name: "DAI",
-    minBridgeAmount: 0.1
-  },
+
   {
     img: "bnb.png",
     name: "BNB",
-    minBridgeAmount: 0.1
+    minBridgeAmount: 0.1,
+    show: true
   },
 
 
@@ -524,35 +531,6 @@ const coinChoose = ref({
 })
 
 const allCoinList = ref([
-  // {
-  //   img: "eth.svg",
-  //   name: "ETH",
-  //   minBridgeAmount: 0.1
-  // }, {
-  //   img: "usdt.png",
-  //   name: "USDT",
-  //   minBridgeAmount: 0.1
-  // },
-  // {
-  //   img: "usdol.png",
-  //   name: "USDC",
-  //   minBridgeAmount: 0.1
-  // },
-  // {
-  //   img: "usdc.svg",
-  //   name: "USDC",
-  //   minBridgeAmount: 0.1
-  // },
-  // {
-  //   img: "dai.png",
-  //   name: "DAI",
-  //   minBridgeAmount: 0.1
-  // },
-  // {
-  //   img: "bnb.png",
-  //   name: "BNB",
-  //   minBridgeAmount: 0.1
-  // },
 
 
 
@@ -781,6 +759,7 @@ function gotoScan(type, value, chainId) {
     window.open(url, "_blank");
   }
 }
+// 检测跨链是否是 dol  和其他链跨链   如果是其他链胡跨则提示不行
 
 function showChain(state1) {
   showModal.value = true
@@ -822,15 +801,23 @@ function formatToken(value, symbol) {
 }
 
 function switchChains() {
-  // 交换 UI 上的 fromChain 和 toChain
-  let a = fromChain.value
-  let b = toChain.value
-  let temp = { ...a }
-  Object.assign(a, b)
-  Object.assign(b, temp)
+  if (fromChain.value.chainId == 1520 || toChain.value.chainId == 1520) {
+    // 交换 UI 上的 fromChain 和 toChain
+    let a = fromChain.value
+    let b = toChain.value
+    let temp = { ...a }
+    Object.assign(a, b)
+    Object.assign(b, temp)
 
-  // 初始化桥接余额
-  initBridgeBalance()
+    // 初始化桥接余额
+    initBridgeBalance()
+  } else {
+    ElMessage({
+        message: '其它链不能互夸,目前只支持dol <-> 其他链！',
+        type: 'warning',
+        plain: true,
+      })
+  }
 }
 
 function tab(item) {
@@ -869,8 +856,17 @@ function handleClose() {
 }
 
 function showCoin() {
-  // console.log(coinList.value)
-  allCoinList.value = coinList
+  var arr = []
+  coinList.map((item) => {
+    let from = fromChain.value[item.name.toLowerCase() + 'Contract']
+    let to = toChain.value[item.name.toLowerCase() + 'Contract']
+    if (from && to) {
+      arr.push(item)
+    }
+  })
+  console.log(fromChain.value)
+
+  allCoinList.value = arr
   showModal2.value = true
   search2.value = ""
 }
@@ -920,58 +916,51 @@ watch(
   }
 )
 
+
 async function getTokenBalance({ provider, address, chainInfo, tokenName }) {
-  const isCpChain = chainInfo.chainId === 1519;
+
   const token = tokenName.toUpperCase();
   const nativeToken = chainInfo.currency.toUpperCase();
 
   try {
-    // ✅ 情况 1：原生币（如 ETH、CP），且不是 CP 链上的 ETH
-    if (token === nativeToken && !(isCpChain && token === 'ETH')) {
-      const balance = await provider.getBalance(address);
-      console.log(`[原生币] ${token} - 余额:`, balance.toString());
-      return parseFloat(ethers.formatUnits(balance, 18)).toFixed(6);
-    }
-
-    // ✅ 情况 2：CP链上的 ETH，走 ethContract 查询
-    if (isCpChain && token === 'ETH') {
-      console.log(chainInfo)
-      const ethContract = chainInfo.ethContract;
-      if (!ethContract) {
-        console.warn(`[警告] Dolphinet链未配置 ETH 合约地址`);
-        return '0.000000';
-      }
-      console.log(`[Dolphinet链 ETH] 通过合约 ${ethContract} 查询`);
-      const contract = new ethers.Contract(ethContract, erc20ABI, provider);
-      const balance = await contract.balanceOf(address);
-      return parseFloat(ethers.formatUnits(balance, 18)).toFixed(6);
-    }
-
-    // ✅ 情况 3：普通 ERC20 代币
+    // 1. 获取对应的合约地址字段 (例如 ethContract, bnbContract, usdtContract)
     const contractKey = token.toLowerCase() + 'Contract';
     const erc20Addr = chainInfo[contractKey];
 
-    if (!erc20Addr) {
-      console.warn(`[警告] ${token} 未配置合约地址于链 ${chainInfo.name}`);
-      return '0.000000';
+    // 2. 情况 A: 查询的是当前链的原生币 (Native Gas Token)
+    // 逻辑：token 名等于链原生币符号，且合约地址配置为 0xEeee... 或为空
+    if (token === nativeToken) {
+      const balance = await provider.getBalance(address);
+      console.log(`[原生币] ${token} - 余额查询成功`);
+      return parseFloat(ethers.formatUnits(balance, 18)).toFixed(6);
     }
 
-    console.log(`[ERC20] ${token} 合约地址: ${erc20Addr}`);
-    const contract = new ethers.Contract(erc20Addr, erc20ABI, provider);
-    const balance = await contract.balanceOf(address);
-    const decimal = TOKEN_DECIMALS[token]
-    console.log(decimal)
-    return parseFloat(ethers.formatUnits(balance, decimal)).toFixed(6);
+    // 3. 情况 B: 查询的是 BNB、ETH (作为代币) 或其他 ERC20
+    // 只要它不是原生币，且配置了有效的合约地址，就走 balanceOf
+    if (erc20Addr && erc20Addr !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
+      console.log(`[ERC20/跨链资产] ${token} 通过合约查询: ${erc20Addr}`);
+
+      const contract = new ethers.Contract(erc20Addr, erc20ABI, provider);
+      const balance = await contract.balanceOf(address);
+
+      // 获取精度: 默认 18，特殊代币如 USDT/USDC 需要在 TOKEN_DECIMALS 定义
+      const decimal = TOKEN_DECIMALS[token] || 18;
+      return parseFloat(ethers.formatUnits(balance, decimal)).toFixed(6);
+    }
+
+    // 4. 如果没有找到对应的地址配置
+    console.warn(`[警告] 链 ${chainInfo.name} 未配置 ${token} 的合约地址`);
+    return '0.000000';
+
   } catch (err) {
-    console.error(`[错误] 查询 ${token} 余额失败:`, err);
+    console.error(`[错误] 查询 ${token} 余额失败 (链: ${chainInfo.name}):`, err);
     return '0.000000';
   }
 }
-
 async function initBridgeBalance() {
   if (!address.value) return
 
-  console.log('地址:', address.value)
+
 
   fromBalance.value = '0.000000'
   toBalance.value = '0.000000'
@@ -1139,6 +1128,7 @@ async function getBridgeFees() {
 }
 
 async function getRecordsList() {
+
   if (!address.value) return
 
   var result = await getBridgeRecords(
@@ -1164,20 +1154,41 @@ function calculateMarketPriceTimesFee(market_price_str, predict_fee_str) {
 }
 
 function select(val) {
+
+  // alert(result)
   selected.value = val;
   handleClose();
   if (val.chainId == fromChain.value.chainId || val.chainId == toChain.value.chainId) {
+
+    // var result = checkedConatinDol()
     switchChains()
-    initBridgeBalance()
+
     return
   }
   if (state.value == 1 && val.chainId != fromChain.value.chainId) {
-    fromChain.value = selected.value
-    initBridgeBalance()
+    if (toChain.value.chainId == 1520) {
+      fromChain.value = selected.value
+      initBridgeBalance()
+    } else {
+      ElMessage({
+        message: '其它链不能互夸,目前只支持dol <-> 其他链！',
+        type: 'warning',
+        plain: true,
+      })
+    }
   }
   if (state.value == 2 && val.chainId != toChain.value.chainId) {
-    toChain.value = selected.value
-    initBridgeBalance()
+    // var result = checkedConatinDol()
+    if (fromChain.value.chainId == 1520) {
+      toChain.value = selected.value
+      initBridgeBalance()
+    } else {
+      ElMessage({
+        message: '其它链不能互夸,目前只支持dol <-> 其他链！',
+        type: 'warning',
+        plain: true,
+      })
+    }
   }
 }
 

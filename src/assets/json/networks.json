@@ -1,34 +1,84 @@
 [
     {
-        "name": "Op TestNet",
-        "chainId": 11155420,
+        "name": "Optimism",
+        "chainId": 10,
         "img": "optimism.svg",
-        "rpcUrl": "https://optimism-sepolia.infura.io/v3/10e3a11b64a748599fef8e9807028d92",
-        "explorerUrl": "https://sepolia-optimism.etherscan.io",
+        "rpcUrl": "https://optimism-mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92",
+        "explorerUrl": "https://optimistic.etherscan.io/",
         "currency": "ETH",
         "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "usdtContract": "0xfAcCd5B6f740A602751c72bf13363D0D65aeCA4E",
-        "usdcContract": "0x92c6Cba872b9103e4DDd1020760Dae9Abd1CcF6B",
-        "daiContract": "0xC9fae01048535483a48998fce3D7d2e39f83057b",
+        "usdtContract": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+        "usdcContract": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+        "daiContract": "",
         "ethContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "bnbContract": "0xB8a1Bd9513Aba587e3a63368a9f1955233715a88",
-        "bridgeContract": "0x75Eed84B4338a0E8008Ca102CedD7bA803DE6d81"
+        "bnbContract": "",
+        "bridgeContract": "0x75c71DCFe31A57645455A9e9f3D50F55A6F130b1"
         
     },
     {
         "name": "Dolphinet",
-        "chainId": 1519,
+        "chainId": 1520,
         "img": "Dolphinet.png",
-        "rpcUrl": "https://rpc-testnet.dolphinode.world",
-        "explorerUrl": " https://explorer-testnet.dolphinode.world",
+        "rpcUrl": "https://rpc.dolphinode.world",
+        "explorerUrl": "https://explorer.dolphinode.world",
         "currency": "DOL",
         "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "usdtContract": "0xD52A1bbF51C192eF1eab576c63478B33fd4a1CF1",
-        "usdcContract": "0x268A109a9aFe67c712CbFd07834F6Aa02A6d80cB",
-        "daiContract": "0xbA1D792Da65e48473a4e6525d52C7FD5F07A33Fa",
-        "ethContract": "0xf6fD11b752369F5db636ea0a5279ee72bDDf3A37",
-        "bnbContract": "0x360B2A75f380B1c619198cc681d8D49cc12ae3FD",
-        "bridgeContract": "0x9b9445AeF31AC1B0D16Ed68432e4dCCeBF2f2CF2"
+        "usdtContract": "0xF61C878b8116358BCfC5b6b45275035a658017Fa",
+        "usdcContract": "0xE1B7bEE68E1803A3Ba13E75dE1dEC117e4654500",
+        "daiContract": "",
+        "ethContract": "0xf8aaBf06700F42Cf35445BaA29581737c572De42",
+        "bnbContract": "0xe27171740FC3329F6a7613145865aE5CA91DA03D",
+        "bridgeContract": "0x5fC67C5786d92cEf6E1d083fA5D048ECfC97615D"
+        
+    },
+    {
+        "name": "Ethereum",
+        "chainId": 1,
+        "img": "eth.png",
+        "rpcUrl": "https://mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92",
+        "explorerUrl": "https://etherscan.io/",
+        "currency": "ETH",
+        "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "usdtContract": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        "usdcContract": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "daiContract": "",
+        "ethContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "bnbContract": "0xB8c77482e45F1F44dE1745F52C74426C631bDD52",
+        "bridgeContract": "0x75c71DCFe31A57645455A9e9f3D50F55A6F130b1"
+        
+    },
+    {
+        "name": "Polygon",
+        "chainId": 137,
+        "img": "polygon.svg",
+        "rpcUrl": "https://polygon-mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92",
+        "explorerUrl": "https://polygonscan.com/",
+        "currency": "POL",
+        "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "usdtContract": "",
+        "usdcContract": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        "daiContract": "",
+        "ethContract": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+        "bnbContract": "",
+        "bridgeContract": "0x75c71DCFe31A57645455A9e9f3D50F55A6F130b1"
+        
+    },
+    {
+        "name": "Bsc",
+        "chainId": 56,
+        "img": "bnb.png",
+        "rpcUrl": "https://bsc-mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92",
+        "explorerUrl": "https://bscscan.com/",
+        "currency": "BNB",
+        "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "usdtContract": "0x55d398326f99059fF775485246999027B3197955",
+        "usdcContract": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+        "daiContract": "",
+        "ethContract": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+        "bnbContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "bridgeContract": "0x75c71DCFe31A57645455A9e9f3D50F55A6F130b1"
         
     }
+
+    
 ]

@@ -1,54 +1,59 @@
 import { http, createConfig, createStorage } from '@wagmi/vue'
 import { walletConnect, injected } from '@wagmi/vue/connectors'
 import { defineChain } from 'viem'
+// 导入官方链定义，省去手动配置 blockExplorers 等信息
+import { mainnet, optimism, polygon, bsc } from '@wagmi/vue/chains'
 
-// ✅ 1. 定义各链
-const doplhinet = defineChain({
-  id: 1519,
-  name: 'doplhinet Testnet',
-  nativeCurrency: { name: 'doplhinet', symbol: 'DOL', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc-testnet.dolphinode.world'] } },
-  blockExplorers: {
+// 1. 自定义 Dolphinet 主网 (因为它不在官方库中，保留手动定义)
+const dolphinet = defineChain({
+  id: 1520,
+  name: 'Dolphinet',
+  nativeCurrency: {
+    name: 'Dolphinet',
+    symbol: 'DOL',
+    decimals: 18,
+  },
+  rpcUrls: {
     default: {
-      name: 'doplhinet Explorer',
-      url: 'https://explorer-testnet.dolphinode.world',
+      http: ['https://rpc.dolphinode.world'],
     },
   },
-  testnet: true,
-})
-
-
-const optimism = defineChain({
-  id: 11155420,
-  name: 'Optimism Sepolia',
-  nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://optimism-sepolia.infura.io/v3/10e3a11b64a748599fef8e9807028d92'] } },
   blockExplorers: {
     default: {
-      name: 'OP Explorer',
-      url: 'https://sepolia-optimism.etherscan.io',
+      name: 'Dolphinet Explorer',
+      url: 'https://explorer.dolphinode.world',
     },
   },
-  testnet: true,
 })
 
-// ✅ 2. 构建 wagmi config
+// 2. 配置 Wagmi
 export const config = createConfig({
-  chains: [doplhinet,  optimism],
+  // 将 dolphinet 放在第一位，作为默认连接的链
+  chains: [dolphinet, mainnet, optimism, polygon, bsc],
+
   connectors: [
-    injected(), // ✅ 添加 injected 连接器支持 MetaMask 等浏览器钱包
+    injected(),
     walletConnect({
       projectId: 'f87cf4373910e1766c873dc5df019573',
     }),
   ],
-  storage: createStorage({ storage: localStorage, key: 'vite-vue' }),
+
+  storage: createStorage({
+    storage: localStorage,
+    key: 'dol'
+  }),
+
+  // 3. 关键点：在这里强制指定你提供的 RPC 地址
   transports: {
-    [doplhinet.id]: http(doplhinet.rpcUrls.default.http[0]),
-     [optimism.id]: http(optimism.rpcUrls.default.http[0])
+    [dolphinet.id]: http('https://rpc.dolphinode.world'),
+    [mainnet.id]: http('https://mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92'),
+    [optimism.id]: http('https://optimism-mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92'),
+    [polygon.id]: http('https://polygon-mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92'),
+    [bsc.id]: http('https://bsc-mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92'),
   },
 })
 
-// ✅ 3. 类型注入
+// 4. 类型注入（Vue 环境必需）
 declare module '@wagmi/vue' {
   interface Register {
     config: typeof config

@@ -6,7 +6,7 @@ import axios from "axios"
 export function getBridgeRecords(page,pageSize,order,address,bridgeType) {
     return axios({
          
-        url: "https://bridge-testnet.dolphinode.world/api/v1/bridge-records",
+        url: "https://bridge-api.dolphinode.world/api/v1/bridge-records",
         method: "get",
         params: {
             page: page,
