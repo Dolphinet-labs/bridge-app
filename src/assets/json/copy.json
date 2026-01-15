@@ -1,382 +1,84 @@
 [
     {
-        "name": "Sepolia TestNet",
-        "chainId": 11155111,
-        "img": "eth.svg",
-        "rpcUrl": "https://eth-sepolia.g.alchemy.com/v2/afSCtxPWD3NE5vSjJm2GQ",
-        "explorerUrl": "https://sepolia.etherscan.io",
-        "currency": "ETH",
-        "nativeTokenContract": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        "usdtContract": "0x9265ef1154786A74EBee0155968DC474b86Af496",
-        "usdcContract": "0xeF85E0bC2F4F007236C2cdD1c19a052492Cc044B",
-        "cpContract":"0x6DFed606326d13Bc20E099c937B6D8FB06FAf335",
-        "daiContract": "0xcA77eB3fEFe3725Dc33bccB54eDEFc3D9f764f97",
-        "wethContract": "0x5300000000000000000000000000000000000004",
-        "okbContract": "0x3F4B6664338F23d2397c953f2AB4Ce8031663f80",
-        "bridgeContract": "0x26FF133bAC77404Fb87BFB0ce712AFdf1F41d1BE",
-        "supportedChainsAndTokens": [
-            {
-                "name": "Holesky TestNet",
-                "img": "eth.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Polygon TestNet",
-                "img": "polygon.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "ZKFair TestNet",
-                "img": "zkfair.png",
-                "supportedTokens": [
-                    "USDC"
-                ]
-            },
-            {
-                "name": "X1 TestNet",
-                "img": "okb.png",
-                "supportedTokens": [
-                    "ETH",
-                    "OKB"
-                ]
-            },
-            {
-                "name": "Manta TestNet",
-                "img": "manta.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Op TestNet",
-                "img": "optimism.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Scroll TestNet",
-                "img": "scroll.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Arb TestNet",
-                "img": "arbitrum.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Base TestNet",
-                "img": "base.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            }
-        ]
-    },
-
-
-
-
-
-    {
-        "name": "Op TestNet",
-        "chainId": 11155420,
+        "name": "Optimism",
+        "chainId": 10,
         "img": "optimism.svg",
-        "rpcUrl": "https://opt-sepolia.g.alchemy.com/v2/afSCtxPWD3NE5vSjJm2GQ",
-        "explorerUrl": "https://sepolia-optimism.etherscan.io",
+        "rpcUrl": "https://optimism-mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92",
+        "explorerUrl": "https://optimistic.etherscan.io/",
         "currency": "ETH",
-        "nativeTokenContract": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        "usdtContract": "0xc3cf0bEEc235ABe807Da7CD748045CcF6b39A816",
-        "usdcContract": "0x912b3CB989Ca2fEA751871eb3F7aC17634fA871F",
-        "cpContract":"0x03a382F062F6FfdFF8D61bD39Ce667Ecd126eD45",
-        "daiContract": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
-        "wethContract": "0x4200000000000000000000000000000000000006",
-        "bridgeContract": "0x26FF133bAC77404Fb87BFB0ce712AFdf1F41d1BE",
-        "supportedChainsAndTokens": [
-            {
-                "name": "Sepolia TestNet",
-                "img": "eth.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Holesky TestNet",
-                "img": "eth.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Polygon TestNet",
-                "img": "polygon.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "X1 TestNet",
-                "img": "okb.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Manta TestNet",
-                "img": "manta.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Scroll TestNet",
-                "img": "scroll.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Arb TestNet",
-                "img": "arbitrum.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Base TestNet",
-                "img": "base.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            }
-        ]
-    },
-
-    {
-        "name": "Arb TestNet",
-        "chainId": 421614,
-        "img": "arbitrum.png",
-        "rpcUrl": "https://arb-sepolia.g.alchemy.com/v2/afSCtxPWD3NE5vSjJm2GQ",
-        "explorerUrl": "https://sepolia.arbiscan.io",
-        "currency": "ETH",
-        "nativeTokenContract": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        "usdtContract": "0xCaad72942Dea62d1abBa0008d113475Dc319dA6B",
-        "usdcContract": "0x7Dc1c12301D3F8EF052F1f556F4B245419Eb9F97",
-        "cpContract":"0xE60DBeF88A7492Dff4C841d065D34D44942aF5d5",
-        "daiContract": "0xcA77eB3fEFe3725Dc33bccB54eDEFc3D9f764f97",
-        "wethContract": "0x5300000000000000000000000000000000000004",
-        "bridgeContract": "0x26FF133bAC77404Fb87BFB0ce712AFdf1F41d1BE",
-        "supportedChainsAndTokens": [
-            {
-                "name": "Sepolia TestNet",
-                "img": "eth.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Holesky TestNet",
-                "img": "eth.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Polygon TestNet",
-                "img": "polygon.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "X1 TestNet",
-                "img": "okb.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Manta TestNet",
-                "img": "manta.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Op TestNet",
-                "img": "optimism.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Scroll TestNet",
-                "img": "scroll.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Base TestNet",
-                "img": "base.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            }
-        ]
+        "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "usdtContract": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+        "usdcContract": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+        "daiContract": "",
+        "ethContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "bnbContract": "",
+        "bridgeContract": "0x75c71DCFe31A57645455A9e9f3D50F55A6F130b1"
+        
     },
     {
-        "name": "Base TestNet",
-        "chainId": 84532,
-        "img": "base.svg",
-        "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/afSCtxPWD3NE5vSjJm2GQ",
-        "explorerUrl": "https://sepolia.basescan.org",
-        "currency": "ETH",
-        "nativeTokenContract": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        "usdtContract": "0xC5b35dc6817daeEaAbD6AE245b7D651715BfEBD4",
-        "usdcContract": "0xa14f02b80435f8B4d676a799A8DDC15107965181",
-        "cpContract":"0xc3cf0bEEc235ABe807Da7CD748045CcF6b39A816",
-        "daiContract": "0xcA77eB3fEFe3725Dc33bccB54eDEFc3D9f764f97",
-        "wethContract": "0x5300000000000000000000000000000000000004",
-        "bridgeContract": "0x26FF133bAC77404Fb87BFB0ce712AFdf1F41d1BE",
-        "supportedChainsAndTokens": [
-            {
-                "name": "Sepolia TestNet",
-                "img": "eth.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Holesky TestNet",
-                "img": "eth.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Polygon TestNet",
-                "img": "polygon.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "X1 TestNet",
-                "img": "okb.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Manta TestNet",
-                "img": "manta.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Op TestNet",
-                "img": "optimism.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Scroll TestNet",
-                "img": "scroll.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Arb TestNet",
-                "img": "arbitrum.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            }
-        ]
+        "name": "Dolphinet",
+        "chainId": 1520,
+        "img": "Dolphinet.png",
+        "rpcUrl": "https://rpc.dolphinode.world",
+        "explorerUrl": "https://explorer.dolphinode.world",
+        "currency": "DOL",
+        "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "usdtContract": "0xF61C878b8116358BCfC5b6b45275035a658017Fa",
+        "usdcContract": "0xE1B7bEE68E1803A3Ba13E75dE1dEC117e4654500",
+        "daiContract": "",
+        "ethContract": "0xf8aaBf06700F42Cf35445BaA29581737c572De42",
+        "bnbContract": "0xe27171740FC3329F6a7613145865aE5CA91DA03D",
+        "bridgeContract": "0x5fC67C5786d92cEf6E1d083fA5D048ECfC97615D"
+        
     },
     {
-        "name": "cp chain",
-        "chainId": 86606,
-        "img": "cp.svg",
-        "rpcUrl": "https://cp-geth-rpc1-testnet.cpchain.com",
-        "explorerUrl": "https://explorer.testnet.cpchain.com",
-        "currency": "CP",
-        "nativeTokenContract": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        "usdtContract": "0x6C255b22864bBC176431c42695D16f41576e5618",
-        "usdcContract": "0xb884F1C92AF157dD3dcC54512a595b1D9531423d",
-        "ethContract":"0x8F441B45179C09F04f8F6F4dc2Ae8fa299258A72",
-        "daiContract": "0xcA77eB3fEFe3725Dc33bccB54eDEFc3D9f764f97",
-        "wethContract": "0x5300000000000000000000000000000000000004",
-        "bridgeContract": "0x2D9C78cB988DaC4719Cc10C279A3af021894F8d4",
-        "supportedChainsAndTokens": [
-            {
-                "name": "Sepolia TestNet",
-                "img": "eth.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Holesky TestNet",
-                "img": "eth.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Polygon TestNet",
-                "img": "polygon.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "X1 TestNet",
-                "img": "okb.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Manta TestNet",
-                "img": "manta.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Op TestNet",
-                "img": "optimism.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Scroll TestNet",
-                "img": "scroll.svg",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            },
-            {
-                "name": "Arb TestNet",
-                "img": "arbitrum.png",
-                "supportedTokens": [
-                    "ETH"
-                ]
-            }
-        ]
+        "name": "Ethereum",
+        "chainId": 1,
+        "img": "eth.png",
+        "rpcUrl": "https://mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92",
+        "explorerUrl": "https://etherscan.io/",
+        "currency": "ETH",
+        "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "usdtContract": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        "usdcContract": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "daiContract": "",
+        "ethContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "bnbContract": "0xB8c77482e45F1F44dE1745F52C74426C631bDD52",
+        "bridgeContract": "0x75c71DCFe31A57645455A9e9f3D50F55A6F130b1"
+        
+    },
+    {
+        "name": "Polygon",
+        "chainId": 137,
+        "img": "polygon.svg",
+        "rpcUrl": "https://polygon-mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92",
+        "explorerUrl": "https://polygonscan.com/",
+        "currency": "POL",
+        "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "usdtContract": "",
+        "usdcContract": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        "daiContract": "",
+        "ethContract": "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+        "bnbContract": "",
+        "bridgeContract": "0x75c71DCFe31A57645455A9e9f3D50F55A6F130b1"
+        
+    },
+    {
+        "name": "Bsc",
+        "chainId": 56,
+        "img": "bnb.png",
+        "rpcUrl": "https://bsc-mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92",
+        "explorerUrl": "https://bscscan.com/",
+        "currency": "BNB",
+        "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "usdtContract": "0x55d398326f99059fF775485246999027B3197955",
+        "usdcContract": "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+        "daiContract": "",
+        "ethContract": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+        "bnbContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "bridgeContract": "0x75c71DCFe31A57645455A9e9f3D50F55A6F130b1"
+        
     }
+
+    
 ]

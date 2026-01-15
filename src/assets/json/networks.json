@@ -1,20 +1,5 @@
 [
-    {
-        "name": "Optimism",
-        "chainId": 10,
-        "img": "optimism.svg",
-        "rpcUrl": "https://optimism-mainnet.infura.io/v3/10e3a11b64a748599fef8e9807028d92",
-        "explorerUrl": "https://optimistic.etherscan.io/",
-        "currency": "ETH",
-        "nativeTokenContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "usdtContract": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-        "usdcContract": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
-        "daiContract": "",
-        "ethContract": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-        "bnbContract": "",
-        "bridgeContract": "0x75c71DCFe31A57645455A9e9f3D50F55A6F130b1"
-        
-    },
+    
     {
         "name": "Dolphinet",
         "chainId": 1520,
