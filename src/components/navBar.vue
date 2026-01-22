@@ -4,7 +4,7 @@
       <el-row>
         <el-col :xs="3" :sm="4" :md="5" :lg="9" :xl="11">
           <div class="gridContent">
-            <a href="/" class="flex"><img src="../assets/images/cpChain.png" alt="" /></a>
+            <a href="/" class="flex"><img src="../assets/images/cpChain.png" alt="Dolphinode" /></a>
           </div>
         </el-col>
         <el-col :xs="21" :sm="20" :md="19" :lg="15" :xl="13">
@@ -82,7 +82,7 @@
           </el-icon>
           <!-- <h3>{{ $t("link.titel") }}</h3> -->
           <div class="headerlogo">
-            <img src="./icons/logo.svg" alt="">
+            <img src="@/assets/images/wallet-popup-logo.png" alt="logo">
             <h4>{{ $t("link.titel") }}</h4>
           </div>
           <ul class="scroll-area">
